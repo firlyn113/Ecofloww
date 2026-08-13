@@ -100,12 +100,17 @@ class RoadmapService:
         Raises:
             ValueError: Jika step_index di luar rentang.
         """
+        from sqlalchemy.orm.attributes import flag_modified
+        
         if step_index < 0 or step_index >= len(roadmap.steps_json):
             raise ValueError("Invalid step index")
 
         steps = roadmap.steps_json.copy()
         steps[step_index]["completed"] = completed
         roadmap.steps_json = steps
+        
+        # Mark JSON field as modified for SQLAlchemy to detect change
+        flag_modified(roadmap, "steps_json")
 
         total_steps = len(steps)
         completed_steps = sum(1 for step in steps if step.get("completed", False))
