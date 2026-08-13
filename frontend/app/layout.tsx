@@ -14,6 +14,19 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "EcoFlow - Smart Eco-Enzyme Assistant",
   description: "AI-powered fermentation monitoring and product recommendation platform",
+  manifest: "/manifest.json",
+  themeColor: "#15803D",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "EcoFlow AI",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({

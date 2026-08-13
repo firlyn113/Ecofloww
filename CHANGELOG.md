@@ -1,134 +1,106 @@
-# CHANGELOG.md: EcoFlow AI
+# EcoFlow AI - Changelog
 
-> Semua perubahan penting pada proyek EcoFlow AI.
-> Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan semantik versioning ([SemVer](https://semver.org/)).
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
 ## [Unreleased]
 
 ### Added
-- Dokumentasi operasional lengkap: `DEPLOYMENT.md`, `OPERATIONS.md`, `MONITORING.md`, `LICENSE`
-- Dokumentasi teknis: `DATA_DICTIONARY.md`, `ALGORITHM_DOCUMENTATION.md`, `TESTING_GUIDE.md`, `DEVELOPMENT.md`, `FIREBASE_INTEGRATION.md`, `USER_MANUAL.md`, `ADMIN_MANUAL.md`, `PRIVACY_POLICY.md`, `TERMS_OF_SERVICE.md`, `CHANGELOG.md`
-- README dokumentasi per-module: `backend/app/services/README.md`, `backend/app/routes/README.md`, `frontend/components/README.md`
-
----
-
-## [0.2.0] - 2026-08-03
-
-### Added
-- Redesign sidebar: interactive nav, hover states, collapsed tooltips
-- Detailed sign-up flow (name/email/phone/password) + Google logo
-- Auth-aware landing page
-- Select-product wiring ke recommendation modal (pick product for roadmap)
-- Offline roadmap cache (localStorage)
-- Photo upload + offline sync E2E tests (17 total)
-
-### Fixed
-- Font preload warning
-- Scroll-behavior warning
-- E2E flakiness: exact Password label match, loopback rate-limit exemption, correct admin creds
-- CORS untuk localhost:3001
-- `.env` auto-load
+- **P1 Features (Q4 2026)**:
+  - PDF Export functionality for batch reports with print-friendly styling
+  - Community Analytics & Sharing UI at `/dashboard/community`
+  - Environmental Impact Tracking panel with CO₂, water, and tree equivalents
+  - PWA Configuration with `manifest.json` and meta tags
+  - IoT Sensors Webhook endpoint at `/api/v1/sensors/webhook`
+  
+- **P2 Features (Q1 2027)**:
+  - Multi-language support (EN/ID) with i18n context provider
+  - Batch Comparison Analytics at `/dashboard/compare` with Recharts visualizations
+  - Enhanced offline-first sync with localforage and retry mechanism
+  - Auto-sync on network reconnection
 
 ### Changed
-- Light-friendly dashboard color palette
-
-### Tests
-- Playwright E2E: 17/17 passing (landing, login, auth guards, dashboard, admin)
+- Repository cleanup: Archived 32 documentation .md files to `docs/archive/`
+- Root directory now only contains `README.md`, `CHANGELOG.md`, and `CONTRIBUTING.md`
+- Backend CORS now accepts wildcard origins for development
 
 ---
 
-## [0.1.2] - 2026-08-01
+## [1.0.0] - 2026-08-13
 
 ### Added
-- FR-9: product templates diambil dari database (tidak hanya hardcoded)
-- FR-1: deviation warning endpoint (`POST /api/v1/check-ingredient-ratio`)
-- Community dashboard dengan region filtering dan CSV compliance export (`/api/v1/admin/*`)
-- Env-config CORS/TrustedHost, Redis-backed rate limiting, security tests, CI/CD pipeline
-- Backup, retention cleanup, dan user deletion compliance scripts
-- Image upload ke MinIO untuk fermentation logs
-- Admin: komunitas, template produk (CRUD + import pricing), model metrics, user roles
+- **Warm Organic Design System**:
+  - Forest Green (#15803D) primary color
+  - Molasses Amber (#D97706) accent color
+  - Soft Cream (#FDFBF7) background
+  - Complete landing page redesign with warm palette
 
-### Fixed
-- CRITICAL + HIGH audit findings (lihat `SECURITY_HARDENING_REPORT.md`)
-- Secret files dihapus dari tracking + update `.gitignore`
-- Duplicate schema definitions di `base.py`
+- **Clean Code Architecture**:
+  - Frontend restructure: `src/components/{ui,layout,features}`
+  - Backend restructure: `app/api/` for endpoint separation
+  - Organized hooks, services, and types directories
 
-### Security
-- Security headers (X-Frame-Options, CSP, HSTS, dll)
-- Rate limiting (60 req/min/IP, configurable via env)
-- TrustedHost middleware + CORS whitelist production
+- **Backend Improvements**:
+  - CORS wildcard configuration for development
+  - Enhanced error handling with fallback empty arrays
+  - Improved API timeout handling (10s)
 
-### Tests
-- Unit + integration: eco enzyme, fermentation assistant, ratio API, security (headers/CORS/rate limit)
-- E2E: expanded ke 14–16 test (auth guards, dashboard flows, admin, photo upload, offline sync)
+- **Documentation**:
+  - Professional README.md (530 lines) with:
+    - Tech stack badges
+    - Comprehensive folder tree structure
+    - API endpoints summary table
+    - Quick Start guide with Docker
+    - Testing instructions
+    - Design system documentation
+    - Troubleshooting section
+
+### Changed
+- Landing page from dark cyberpunk theme to warm organic theme
+- Global CSS variables for warm color palette
+- Navigation and CTA buttons styling
 
 ---
 
-## [0.1.1] - 2026-07-31
+## [0.1.0] - 2026-08-10
 
 ### Added
-- Image upload ke MinIO untuk fermentation logs
-- Migration: `selected_product_id` di `fermentation_batches`, `image_url` di `fermentation_logs`
+- Initial MVP release for ITechnoCup 2026
+- AI-powered fermentation monitoring
+- Product recommendation engine
+- Business analysis dashboard
+- Batch management system
+- Firebase authentication
+- PostgreSQL database with Alembic migrations
+- Admin dashboard
+- Environmental impact metrics
+- PDF export for reports and roadmaps
 
-### Fixed
-- Duplicate schema definitions di `base.py`
-- Secret files dihapus dari git tracking (`.gitignore` diperbarui)
-
----
-
-## [0.1.0] - 2026-07-29
-
-### Added — MVP Lengkap
-
-**Backend (FastAPI):**
-- Endpoints batch: create, list, detail, logs (create/list)
-- AI Fermentation Assistant: klasifikasi status (Normal/Caution/Failed), health score, harvest alert
-- Product Recommendation: compatibility scoring + ranking top 8
-- Business Analysis: COGS, SRP, margins, break-even, proyeksi 12 bulan, sensitivity, viability rating
-- Environmental Impact: CO₂, metana, air, setara pohon
-- Roadmap: generate per template, step tracking, PDF download (dengan QR code)
-- Report: business report PDF, roadmap checklist PDF
-- Firebase Auth integration + auto-register user
-- Rate limiting (in-memory)
-- Security headers + CORS + TrustedHost
-
-**Frontend (Next.js 15 + Chakra UI):**
-- Landing page, login (email/password + Google), dashboard
-- Batch cards, create batch modal, fermentation log modal
-- Product recommendation modal, business analysis modal, roadmap modal
-- Milestones panel, responsive design
-
-**Infrastructure:**
-- PostgreSQL 16 + MinIO + Docker Compose
-- Alembic migrations
-- CI/CD (GitHub Actions): backend tests + frontend lint/build
-- Dokumentasi lengkap (PRD, Architecture, API, Database, dll.)
-
-### Fixed
-- Critical MVP bugs: harvest date calculation, health score, intent bonus, recommendation upsert, validasi input
-- 422/400 validasi yang salah untuk payload valid
-
-### Known Issues (saat rilis)
-- Rate limiter in-memory tidak konsisten antar worker (solved di 0.2.0 dengan Redis)
-- Product templates hardcoded di service (solved di 0.1.2 dengan DB)
+### Features
+- Next.js 15 with App Router
+- FastAPI backend with Python 3.14
+- Tailwind CSS 4.0 styling
+- Firebase Auth integration
+- Real-time monitoring with AI predictions
+- 8 product templates (Household Cleaner, Fertilizer, etc.)
+- COGS calculation and profit projections
+- Offline queue for fermentation logs
+- E2E testing with Playwright (17 tests passing)
 
 ---
 
-## Format Entri Changelog (untuk kontributor)
+## Legend
+- **Added**: New features
+- **Changed**: Changes in existing functionality
+- **Deprecated**: Soon-to-be removed features
+- **Removed**: Removed features
+- **Fixed**: Bug fixes
+- **Security**: Vulnerability fixes
 
-```
-### Added       — Fitur baru
-### Changed     — Perubahan perilaku yang ada
-### Deprecated  — Fitur yang akan dihapus
-### Removed     — Fitur yang dihapus
-### Fixed       — Bug fix
-### Security    — Perbaikan keamanan
-### Tests       — Perubahan/penambahan test
-```
+---
 
-**Aturan:**
-1. Buat entri `[Unreleased]` saat menambah perubahan, pindahkan ke rilis saat versi dirilis.
-2. Version bump: `0.1.0` (initial) → `0.2.0` (fitur) → `1.0.0` (production launch).
-3. Referensikan issue/PR number jika ada.
+**EcoFlow AI © 2026** - Smart Eco-Enzyme Fermentation Assistant

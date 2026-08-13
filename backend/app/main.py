@@ -25,6 +25,7 @@ from app.routes.impact import router as impact_router
 from app.routes.roadmap import router as roadmap_router
 from app.routes.admin import router as admin_router
 from app.routes.users import router as users_router
+from app.api.sensors import router as sensors_router
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +112,7 @@ app.include_router(impact_router)
 app.include_router(roadmap_router)
 app.include_router(admin_router)
 app.include_router(users_router)
+app.include_router(sensors_router)
 
 
 @app.post("/api/v1/upload", response_model=APIResponse)
