@@ -57,7 +57,21 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    response.headers["Content-Security-Policy"] = "default-src 'self'"
+    
+    # Relaxed CSP for Swagger UI (/docs and /openapi.json)
+    if request.url.path in ["/docs", "/openapi.json", "/redoc"] or request.url.path.startswith("/docs/"):
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
+            "style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
+            "img-src 'self' https://fastapi.tiangolo.com data:; "
+            "font-src 'self' https://cdn.jsdelivr.net data:; "
+            "connect-src 'self';"
+        )
+    else:
+        # Strict CSP for other endpoints
+        response.headers["Content-Security-Policy"] = "default-src 'self'"
+    
     return response
 
 rate_buckets: dict[str, deque[float]] = defaultdict(deque)
