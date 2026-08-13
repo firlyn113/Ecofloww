@@ -172,12 +172,31 @@ export default function RoadmapModal({
   const handleStepToggle = async (stepIndex: number, completed: boolean) => {
     if (!roadmap) return;
 
+    // Optimistic UI Update
+    const updatedSteps = roadmap.steps.map((step, idx) => 
+      idx === stepIndex ? { ...step, completed } : step
+    );
+    
+    const completedCount = updatedSteps.filter(s => s.completed).length;
+    const totalSteps = updatedSteps.length;
+    const newProgress = (completedCount / totalSteps) * 100;
+    
+    // Update UI immediately (optimistic)
+    setRoadmap({
+      ...roadmap,
+      steps: updatedSteps,
+      completed_steps: completedCount,
+      progress_percentage: newProgress,
+      status: completedCount === 0 ? 'not_started' : completedCount === totalSteps ? 'completed' : 'in_progress'
+    });
+
     try {
       setUpdating(true);
       const response = await apiClient.put(
         `/api/v1/batches/${batchId}/roadmap/steps/${stepIndex}`,
         { completed }
       );
+      // Update with server response
       setRoadmap(response.data.data);
       cacheRoadmap(batchId, productTemplateId, response.data.data);
       toast({
@@ -188,6 +207,8 @@ export default function RoadmapModal({
         duration: 2000,
       });
     } catch (error: unknown) {
+      // Revert optimistic update on error
+      setRoadmap(roadmap);
       const err = error as { response?: { data?: { detail?: string } } };
       toast({
         title: 'Error',
