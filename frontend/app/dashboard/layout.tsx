@@ -69,7 +69,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
       </Suspense>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      {/* Main content area with proper margin to account for sidebar */}
+      <div className="flex flex-1 flex-col overflow-hidden lg:ml-20">
         <header className="flex items-center justify-between border-b border-emerald-100 bg-white/80 px-4 py-3 backdrop-blur transition-all duration-300 md:px-6 md:py-4">
           <button
             type="button"
