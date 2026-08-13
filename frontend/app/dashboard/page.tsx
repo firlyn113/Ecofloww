@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useBatches, type Batch } from '@/lib/batches-context';
-import CreateBatchModal from '@/components/CreateBatchModal';
-import BatchCard from '@/components/BatchCard';
-import FermentationLogModal from '@/components/FermentationLogModal';
-import ProductRecommendationModal from '@/components/ProductRecommendationModal';
-import BusinessAnalysisModal from '@/components/BusinessAnalysisModal';
-import RoadmapModal from '@/components/RoadmapModal';
-import MilestonesPanel from '@/components/MilestonesPanel';
+import CreateBatchModal from '@/src/components/features/CreateBatchModal';
+import BatchCard from '@/src/components/features/BatchCard';
+import FermentationLogModal from '@/src/components/features/FermentationLogModal';
+import ProductRecommendationModal from '@/src/components/features/ProductRecommendationModal';
+import BusinessAnalysisModal from '@/src/components/features/BusinessAnalysisModal';
+import RoadmapModal from '@/src/components/features/RoadmapModal';
+import MilestonesPanel from '@/src/components/features/MilestonesPanel';
 import { subscribeToOnlineSync, syncPendingFermentationLogs } from '@/lib/offline-queue';
 
 export default function DashboardPage() {

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import apiClient from '@/lib/api';
 import { BatchesProvider } from '@/lib/batches-context';
-import Sidebar from '@/components/Sidebar';
+import Sidebar from '@/src/components/layout/Sidebar';
 import { LuMenu } from 'react-icons/lu';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

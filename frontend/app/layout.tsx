@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import ClientErrorBoundary from "@/components/ClientErrorBoundary";
+import ClientErrorBoundary from "@/src/components/features/ClientErrorBoundary";
 
 const inter = Inter({
   variable: "--font-inter",

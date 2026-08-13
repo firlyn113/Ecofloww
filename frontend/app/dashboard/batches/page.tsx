@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useBatches, type Batch } from '@/lib/batches-context';
 import apiClient from '@/lib/api';
-import CreateBatchModal from '@/components/CreateBatchModal';
+import CreateBatchModal from '@/src/components/features/CreateBatchModal';
 import { differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 import { FiBox, FiCalendar, FiDroplet, FiPlus, FiThermometer, FiTrendingUp } from 'react-icons/fi';
