@@ -1,380 +1,530 @@
 # 🌱 EcoFlow AI - Smart Eco-Enzyme Fermentation Assistant
 
-> AI-powered fermentation monitoring and product recommendation platform untuk mengoptimalkan proses pembuatan eco-enzyme.
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black?logo=next.js)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.140-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.14+-3776AB?logo=python&logoColor=white)](https://python.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-12.0-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![License](https://img.shields.io/badge/License-ITechnoCup_2026-blue)](./LICENSE)
 
-## 🎯 Apa Itu EcoFlow?
+> **Platform fermentasi eco-enzyme berbasis AI untuk monitoring real-time, rekomendasi produk, dan analisis bisnis komprehensif.**
 
-EcoFlow adalah aplikasi web yang membantu Anda:
-- **Memantau fermentasi** dengan analisis real-time menggunakan AI
-- **Membuat rekomendasi produk** berdasarkan karakteristik hasil fermentasi
-- **Menganalisis kelayakan bisnis** dengan perhitungan cost, harga, dan proyeksi profit
-- **Mengelola batch fermentasi** dari awal hingga panen
-
-Didesain untuk skala rumahan hingga komersial, cocok untuk entrepreneur eco-enzyme.
+EcoFlow AI adalah solusi digital end-to-end yang mengoptimalkan proses pembuatan eco-enzyme dari sampah organik—membantu produsen rumahan hingga komersial mencapai keberhasilan panen maksimal dengan dukungan AI.
 
 ---
 
-## 🚀 Quick Start (5 Menit)
+## ✨ Fitur Utama
 
-### Prerequisites
-- Node.js 18+
-- Python 3.14+
-- npm/yarn
+### 🤖 **AI-Powered Fermentation Monitoring**
+- Prediksi status fermentasi real-time (Normal, Caution, Failed)
+- Analisis cerdas dari parameter: aroma, warna, suhu, dan aktivitas gas
+- Health score tracking dan milestone achievements
 
-### Setup Lokal
+### 🎯 **Product Recommendation Engine**
+- 8 produk turunan eco-enzyme (Household Cleaner, Fertilizer, Pest Repellent, dll)
+- Matching algorithm berdasarkan karakteristik hasil fermentasi
+- Instruksi pemrosesan lengkap untuk setiap produk
 
-**1. Clone Repository**
+### 💼 **Business Analysis Dashboard**
+- Perhitungan COGS (Cost of Goods Sold) otomatis
+- Analisis profit margin dan break-even point
+- Proyeksi revenue 6 bulan dengan visualisasi lengkap
+- Rekomendasi harga jual berdasarkan market positioning
+
+### 📊 **Batch Management System**
+- Tracking lengkap lifecycle fermentasi (90 hari)
+- Kalkulasi otomatis kebutuhan air (3x) dan gula (1x) dari berat sampah
+- Daily fermentation logs dengan gambar upload
+- Production roadmap generation
+
+### 🌍 **Environmental Impact Tracking**
+- Perhitungan CO₂ diverted dari landfill
+- Community impact aggregation
+- Sustainability metrics dashboard
+
+---
+
+## 🏗️ Arsitektur & Clean Code Structure
+
+### **Tech Stack**
+
+#### **Frontend** (`/frontend`)
+- **Framework**: Next.js 15.5 (App Router) + React 19
+- **Styling**: Tailwind CSS 4.0 (Warm Organic Palette)
+- **Authentication**: Firebase Auth + Context API
+- **HTTP Client**: Axios dengan interceptors
+- **Type Safety**: TypeScript 5.0+
+- **Testing**: Playwright (E2E), ESLint
+
+#### **Backend** (`/backend`)
+- **Framework**: FastAPI 0.140 (Python 3.14+)
+- **Database**: PostgreSQL 16 (production) / SQLite (dev)
+- **ORM**: SQLAlchemy 2.0 + Alembic migrations
+- **Authentication**: Firebase Admin SDK
+- **Storage**: MinIO (S3-compatible) / AWS S3
+- **Rate Limiting**: Redis-backed (fallback in-memory)
+- **Security**: TrustedHost middleware, CORS, Security headers
+
+---
+
+## 📂 Struktur Proyek
+
+```
+EcoFlow-AI/
+├── frontend/                          # Next.js React Application
+│   ├── app/                           # Next.js 15 App Router
+│   │   ├── page.tsx                   # 🎨 Landing Page (Warm Organic Theme)
+│   │   ├── layout.tsx                 # Root layout + providers
+│   │   ├── login/page.tsx             # Authentication page
+│   │   ├── dashboard/                 # Main dashboard
+│   │   │   ├── page.tsx               # Dashboard home
+│   │   │   ├── layout.tsx             # Dashboard layout with sidebar
+│   │   │   ├── batches/page.tsx       # Batch management
+│   │   │   └── settings/page.tsx      # User settings
+│   │   ├── admin/page.tsx             # Admin analytics dashboard
+│   │   └── globals.css                # Global styles (Warm palette)
+│   │
+│   ├── src/                           # 🎯 Clean Architecture (NEW)
+│   │   ├── components/
+│   │   │   ├── ui/                    # Atomic UI components
+│   │   │   ├── layout/                # Layout components (Navbar, Sidebar, Footer)
+│   │   │   │   └── Sidebar.tsx
+│   │   │   └── features/              # Feature-specific components
+│   │   │       ├── BatchCard.tsx
+│   │   │       ├── CreateBatchModal.tsx
+│   │   │       ├── FermentationLogModal.tsx
+│   │   │       ├── ProductRecommendationModal.tsx
+│   │   │       ├── BusinessAnalysisModal.tsx
+│   │   │       ├── RoadmapModal.tsx
+│   │   │       └── MilestonesPanel.tsx
+│   │   │
+│   │   ├── hooks/                     # Custom React Hooks
+│   │   │   ├── auth-context.tsx       # Authentication hook
+│   │   │   └── batches-context.tsx    # Batches state management
+│   │   │
+│   │   ├── services/                  # API integrations
+│   │   │   └── api.ts                 # Axios client with interceptors
+│   │   │
+│   │   ├── lib/                       # Utilities & helpers
+│   │   │   └── firebase.ts            # Firebase config
+│   │   │
+│   │   └── types/                     # TypeScript interfaces & types
+│   │
+│   ├── lib/                           # Legacy utilities (to be migrated)
+│   │   ├── api.ts
+│   │   ├── firebase.ts
+│   │   ├── auth-context.tsx
+│   │   ├── batches-context.tsx
+│   │   └── offline-queue.ts
+│   │
+│   ├── public/                        # Static assets
+│   ├── tests/                         # Playwright E2E tests
+│   ├── .env.local                     # Environment variables (Firebase, API URL)
+│   ├── next.config.ts                 # Next.js configuration
+│   ├── tailwind.config.js             # Tailwind CSS config
+│   ├── tsconfig.json                  # TypeScript configuration
+│   └── package.json                   # Dependencies
+│
+├── backend/                           # FastAPI Python Server
+│   ├── app/
+│   │   ├── main.py                    # 🚀 Application entry point + CORS fix
+│   │   │
+│   │   ├── api/                       # 🎯 API Endpoints (NEW - Clean Architecture)
+│   │   │   ├── recommendations.py     # Product recommendations
+│   │   │   ├── admin.py               # Admin operations
+│   │   │   ├── roadmap.py             # Production roadmap
+│   │   │   ├── impact.py              # Environmental impact
+│   │   │   └── users.py               # User profile management
+│   │   │
+│   │   ├── routes/                    # Legacy routes (to be migrated)
+│   │   │   └── (same as api/)
+│   │   │
+│   │   ├── core/                      # Core configurations
+│   │   │   ├── database.py            # SQLAlchemy setup
+│   │   │   ├── auth.py                # Firebase token verification
+│   │   │   └── firebase.py            # Firebase Admin SDK
+│   │   │
+│   │   ├── models/                    # Database ORM Models
+│   │   │   └── base.py                # User, FermentationBatch, FermentationLog,
+│   │   │                              # ProductTemplate, ProductRecommendation, etc.
+│   │   │
+│   │   ├── schemas/                   # Pydantic Request/Response Schemas
+│   │   │   └── base.py                # DTOs for validation
+│   │   │
+│   │   └── services/                  # Business Logic Layer
+│   │       ├── eco_enzyme.py          # Ingredient calculations (3:1:10 ratio)
+│   │       ├── fermentation_assistant.py  # AI status prediction
+│   │       ├── product_recommendation.py  # Product matching algorithm
+│   │       ├── business_analysis.py   # COGS, margin, break-even
+│   │       ├── roadmap.py             # Roadmap generation
+│   │       ├── environmental_impact.py # CO₂ calculations
+│   │       ├── report.py              # PDF export
+│   │       └── storage.py             # File upload (MinIO/S3)
+│   │
+│   ├── alembic/                       # Database migrations
+│   │   └── versions/
+│   ├── tests/                         # Pytest unit & integration tests
+│   ├── .env                           # Environment variables (Database, Firebase, secrets)
+│   ├── requirements.txt               # Python dependencies
+│   ├── alembic.ini                    # Alembic configuration
+│   └── Dockerfile                     # Container image
+│
+├── docs/                              # Additional documentation
+├── .github/                           # GitHub workflows
+├── docker-compose.yml                 # PostgreSQL + MinIO setup
+├── LICENSE                            # License file
+└── README.md                          # 📖 This file
+```
+
+### **Key Design Principles**
+- ✅ **Clean Architecture**: Clear separation of concerns (UI, Business Logic, Data)
+- ✅ **Type Safety**: Full TypeScript/Python type annotations
+- ✅ **Warm Organic Palette**: Forest Green (#15803D) + Molasses Amber (#D97706) + Soft Cream (#FDFBF7)
+- ✅ **API-First Design**: RESTful endpoints with OpenAPI documentation
+- ✅ **Security**: Firebase Auth, rate limiting, input validation, SQL injection protection
+
+---
+
+## 🚀 Quick Start
+
+### **Prerequisites**
+- **Node.js**: 18+ (with npm/yarn)
+- **Python**: 3.14+
+- **Docker** (optional, for PostgreSQL + MinIO)
+- **Firebase Account**: For authentication setup
+
+---
+
+### **1. Clone Repository**
+
 ```bash
 git clone https://github.com/GomalRajaGula/EcoFlow-AI.git
 cd EcoFlow-AI
 ```
 
-**2. Backend Setup**
+---
+
+### **2. Backend Setup**
+
+#### **a. Install Dependencies**
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # atau: venv\Scripts\activate (Windows)
+source venv/bin/activate          # Linux/Mac
+# venv\Scripts\activate           # Windows
 pip install -r requirements.txt
 ```
 
-**3. Frontend Setup**
+#### **b. Configure Environment**
 ```bash
-cd ../frontend
-npm install
+cp .env.example .env
 ```
 
-**4. Run Dev Servers**
+Edit `.env` with your configuration:
+```env
+DATABASE_URL=postgresql://ecoflow_user:ecoflow_password@localhost:5432/ecoflow
+FIREBASE_CREDENTIALS_PATH=./firebase-credentials.json
+SECRET_KEY=your-super-secret-key-change-this
+ENVIRONMENT=development
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+ADMIN_UIDS=firebase_uid_admin_1,firebase_uid_admin_2
+```
 
-Terminal 1 (Backend):
+#### **c. Setup Database**
+
+**Option 1: Docker (Recommended)**
 ```bash
-cd backend
-source venv/bin/activate
+docker compose up -d postgres minio
+```
+
+**Option 2: Local PostgreSQL**
+```bash
+# Install PostgreSQL 16, then:
+createdb ecoflow
+```
+
+#### **d. Run Migrations**
+```bash
+alembic upgrade head
+```
+
+#### **e. Start Backend Server**
+```bash
 uvicorn app.main:app --reload --port 8000
 ```
 
-Terminal 2 (Frontend):
+✅ Backend API: `http://localhost:8000`  
+✅ API Docs (Swagger): `http://localhost:8000/docs`
+
+---
+
+### **3. Frontend Setup**
+
+#### **a. Install Dependencies**
 ```bash
 cd frontend
+npm install
+```
+
+#### **b. Configure Environment**
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your Firebase credentials:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef
+```
+
+#### **c. Start Frontend Server**
+```bash
 npm run dev
 ```
 
-**5. Akses Aplikasi**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
+✅ Frontend: `http://localhost:3000`
 
 ---
 
-## 📱 Cara Pakai
+### **4. Access the Application**
 
-### 1. **Login/Sign Up**
-- Buka http://localhost:3000/login
-- Buat akun baru atau login dengan email
-- Dashboard akan terbuka otomatis setelah login
-
-### 2. **Buat Batch Baru**
-- Klik "Create New Batch"
-- Isi:
-  - **Batch Name**: Nama batch (misal: "Kitchen Waste - July")
-  - **Waste Weight (kg)**: Berat sampah organik (misal: 10 kg)
-  - **Start Date**: Tanggal mulai fermentasi
-- Sistem otomatis hitung kebutuhan air dan gula
-- Klik "Create Batch"
-
-### 3. **Catat Progress Fermentasi**
-- Di dashboard, klik batch yang aktif
-- Klik "Add Fermentation Log"
-- Isi observasi:
-  - **Log Date**: Tanggal pencatatan
-  - **Aroma**: Pilih (Sweet, Sour, Fruity, dll)
-  - **Color**: Pilih warna liquid
-  - **Gas Presence**: Ada gelembung atau tidak
-  - **Temperature**: Suhu ruangan fermentasi
-- AI akan otomatis memprediksi status fermentasi (Normal/Caution/Failed)
-
-### 4. **Dapatkan Rekomendasi Produk**
-- Setelah fermentasi selesai, klik "Get Product Recommendations"
-- Isi:
-  - **Harvest Volume**: Jumlah liquid hasil panen (liter)
-  - **Final Color**: Warna akhir
-  - **Aroma Intensity**: Intensitas aroma
-  - **Intent**: Household atau Commercial
-- Sistem merekomendasikan 8 produk dengan skor kesesuaian
-
-### 5. **Analisis Bisnis**
-- Klik "Business Analysis" pada batch
-- Isi detail biaya:
-  - **Product Name**: Nama produk yang akan dijual
-  - **Production Volume**: Berapa liter produksi
-  - **Cost Structure**: Biaya bahan baku, packaging, labor, overhead
-  - **Monthly Fixed Costs**: Biaya tetap per bulan
-- Sistem akan hitung:
-  - COGS (Cost of Goods Sold) per unit
-  - Harga jual yang disarankan
-  - Profit margin %
-  - Break-even point
-  - Proyeksi 6 bulan ke depan
+1. Open browser: `http://localhost:3000`
+2. Click **"Mulai Sekarang"** or **"Masuk"**
+3. Sign up with email/password via Firebase
+4. Start creating fermentation batches!
 
 ---
 
-## 🏗️ Struktur Aplikasi
+## 📚 API Endpoints Summary
 
-```
-EcoFlow-AI/
-├── backend/                 # Python FastAPI server
-│   ├── app/
-│   │   ├── main.py         # API endpoints utama
-│   │   ├── routes/         # Route handlers (recommendations, etc)
-│   │   ├── services/       # Business logic
-│   │   │   ├── eco_enzyme.py           # Perhitungan rasio bahan
-│   │   │   ├── fermentation_assistant.py   # AI klasifikasi status
-│   │   │   ├── product_recommendation.py   # Ranking produk
-│   │   │   └── business_analysis.py        # Kalkulasi bisnis
-│   │   ├── models/         # Database schemas
-│   │   ├── schemas/        # Request/response formats
-│   │   └── core/           # Auth, database, Firebase
-│   ├── tests/              # Unit tests
-│   └── requirements.txt    # Python dependencies
-│
-├── frontend/               # Next.js React app
-│   ├── app/
-│   │   ├── page.tsx        # Landing page
-│   │   ├── login/          # Auth page
-│   │   └── dashboard/      # Main dashboard
-│   ├── components/         # Reusable UI components
-│   │   ├── BatchCard.tsx
-│   │   ├── CreateBatchModal.tsx
-│   │   ├── FermentationLogModal.tsx
-│   │   ├── ProductRecommendationModal.tsx
-│   │   └── BusinessAnalysisModal.tsx
-│   ├── lib/               # Utilities
-│   │   ├── api.ts         # API client
-│   │   └── firebase.ts    # Firebase config
-│   └── package.json       # Node dependencies
-│
-├── docs/                  # Documentation
-├── ROADMAP.md
-└── README.md
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/batches` | Create new fermentation batch |
+| `GET` | `/api/v1/batches` | List all user batches |
+| `GET` | `/api/v1/batches/{id}` | Get batch details |
+| `PUT` | `/api/v1/batches/{id}` | Update batch status |
+| `DELETE` | `/api/v1/batches/{id}` | Delete batch |
+| `POST` | `/api/v1/batches/{id}/logs` | Add fermentation log entry |
+| `GET` | `/api/v1/batches/{id}/logs` | Get batch logs |
+| `POST` | `/api/v1/batches/{id}/recommendation` | Get product recommendations |
+| `POST` | `/api/v1/batches/{id}/business-analysis` | Run business analysis |
+| `POST` | `/api/v1/batches/{id}/roadmap` | Generate production roadmap |
+| `GET` | `/api/v1/batches/{id}/dashboard` | Get batch dashboard summary |
+| `GET` | `/api/v1/impact` | Get environmental impact metrics |
+| `GET` | `/api/v1/admin/analytics` | Admin analytics (admin only) |
+| `GET` | `/api/v1/users/profile` | Get user profile |
 
-> Catatan: seluruh dokumentasi berada di file markdown pada root repo (API.md, DATABASE.md, ARCHITECTURE.md, dll), bukan folder `docs/`.
-
----
-
-## 🔧 Technology Stack
-
-### Backend
-- **Framework**: FastAPI (Python)
-- **Database**: PostgreSQL 16 (via Docker + Alembic migrations)
-- **Auth**: Firebase Authentication
-- **ORM**: SQLAlchemy 2.x
-- **Storage**: MinIO (S3-compatible)
-- **Rate Limiting**: Redis-backed (fallback in-memory)
-
-### Frontend
-- **Framework**: Next.js 15 (React 19)
-- **UI Library**: Chakra UI v2
-- **Styling**: Tailwind CSS
-- **HTTP Client**: Axios
-- **Auth**: Firebase SDK
+📖 **Full API Documentation**: `http://localhost:8000/docs` (Swagger UI)
 
 ---
 
 ## 🧪 Testing
 
-### Run Backend Tests
+### **Backend Tests**
 ```bash
 cd backend
 source venv/bin/activate
 pytest tests/ -v
 ```
 
-Cek coverage:
+**Coverage Report**:
 ```bash
 pytest tests/ --cov=app --cov-report=html
+open htmlcov/index.html
 ```
 
-### Run Frontend Lint
+### **Frontend Tests**
+
+**Lint Check**:
 ```bash
 cd frontend
 npm run lint
 ```
 
----
-
-## 📚 API Endpoints
-
-### Batch Management
-- `POST /api/v1/batches` - Buat batch baru
-- `GET /api/v1/batches` - List semua batch user
-- `GET /api/v1/batches/{id}` - Detail batch spesifik
-
-### Fermentation Logs
-- `POST /api/v1/batches/{id}/logs` - Catat log fermentasi
-- `GET /api/v1/batches/{id}/logs` - List logs batch
-
-### Recommendations
-- `POST /api/v1/batches/{id}/recommendation` - Get product recommendations
-- `POST /api/v1/batches/{id}/business-analysis` - Run business analysis
-- `GET /api/v1/batches/{id}/dashboard` - Get dashboard summary
-
-Lihat dokumentasi interaktif di: http://localhost:8000/docs
-
----
-
-## 🚀 Quick Start
-
-### 1. Database (PostgreSQL + MinIO)
+**Build Verification**:
 ```bash
-docker compose up -d postgres minio
+npm run build
 ```
 
-### 2. Backend
+**E2E Tests (Playwright)**:
 ```bash
-cd backend
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env          # isi FIREBASE_CREDENTIALS_PATH & SECRET_KEY
-alembic upgrade head          # jalankan migrasi schema
-uvicorn app.main:app --reload --port 8000
-```
-
-### 3. Frontend
-```bash
-cd frontend
-cp .env.example .env.local    # isi kredensial Firebase
-npm install
-npm run dev                   # http://localhost:3000
-```
-
-### 4. Tes
-```bash
-cd backend && pytest tests/ -q          # 26+ backend tests
-cd frontend && npm run lint && npm run build
-cd frontend && npm run test:e2e         # Playwright (landing + login)
+npm run test:e2e
 ```
 
 ---
 
-## 🚨 Environment Variables
+## 🧬 Business Logic
 
-### Backend (.env)
-```env
-DATABASE_URL=postgresql://ecoflow_user:ecoflow_password@localhost:5432/ecoflow
-FIREBASE_CREDENTIALS_PATH=./firebase-credentials.json
-SECRET_KEY=your-secret-key
-ENVIRONMENT=development
-ADMIN_UIDS=firebase_uid_1,firebase_uid_2   # otomatis diberi role admin
-MINIO_ENDPOINT=http://localhost:9000
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin
-MINIO_BUCKET_NAME=ecoflow-bucket
-# Optional: CORS_ORIGINS, ALLOWED_HOSTS, RATE_LIMIT, REDIS_URL, RETENTION_DAYS
-```
-Lihat `backend/.env.example` untuk daftar lengkap.
-
-### Frontend (.env.local)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_FIREBASE_API_KEY=your_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project
-```
-Salin dari `frontend/.env.example`.
-
----
-
-## 📊 Business Logic
-
-### Eco-Enzyme Calculation
-Rasio ideal untuk fermentasi:
+### **Eco-Enzyme Calculation Formula**
+Rasio ideal untuk fermentasi eco-enzyme:
 - **Water**: 3x berat waste
-- **Brown Sugar**: 1x berat waste
-- **Duration**: 90 hari (dapat disesuaikan)
+- **Brown Sugar**: 1x berat waste  
+- **Duration**: 90 hari
 
-Contoh: 10 kg sampah → 30 L air + 10 kg gula
+**Contoh**: 10 kg sampah organik → 30 L air + 10 kg gula merah → 90 hari fermentasi
 
-### Fermentation Status Classification
-- **Normal**: Aroma manis/asam, warna coklat, ada gas
-- **Caution**: Ada tanda-tanda minor (suhu tidak ideal, no gas di hari 30+)
-- **Failed**: Aroma busuk, warna hijau/hitam, tanda kontaminasi
+### **Fermentation Status Classification (AI)**
+- **Normal**: Aroma sweet/sour/fruity, warna amber/brown, ada gas
+- **Caution**: Minor issues (suhu tidak ideal, no gas setelah 30+ hari)
+- **Failed**: Aroma rotten/pungent, warna hijau/hitam, kontaminasi
 
-### Business Analysis
-- **COGS Calculation**: (Raw Material + Packaging + Labor + Overhead) / Production Volume
+### **Business Analysis Metrics**
+- **COGS**: (Raw Material + Packaging + Labor + Overhead) / Production Volume
 - **Profit Margin**: (Selling Price - COGS) / Selling Price × 100%
-- **Break-even**: Monthly Fixed Costs / Margin per Unit
-- **Projection**: Based on average market adoption curve
+- **Break-even Point**: Monthly Fixed Costs / Margin per Unit
+- **Projections**: 6-month revenue forecast based on market adoption curve
+
+---
+
+## 🎨 Design System (Warm Organic Palette)
+
+### **Color Palette**
+```css
+/* Primary Colors */
+--forest-green: #15803D;        /* Primary brand, CTA buttons */
+--emerald-700: #047857;         /* Hover states */
+--emerald-50: #ECFDF5;          /* Light backgrounds */
+
+/* Accent Colors */
+--amber-600: #D97706;           /* Warm accents (molasses/fermentation) */
+--amber-500: #F59E0B;           /* Highlights */
+--amber-50: #FFFBEB;            /* Warm glow backgrounds */
+
+/* Neutrals */
+--cream-bg: #FDFBF7;            /* Main background (warm cream) */
+--stone-900: #1C1917;           /* Headings */
+--stone-600: #57534E;           /* Body text */
+--stone-200: #E7E5E4;           /* Borders */
+```
+
+### **Typography**
+- **Font Family**: Inter (sans-serif)
+- **Headings**: Bold 700-900, stone-900
+- **Body**: Regular 400-500, stone-600
+
+---
+
+## 🐛 Troubleshooting
+
+### **Backend Connection Error**
+```
+Error: Network error - backend connection failed
+```
+**Solution**:
+1. Ensure backend is running: `curl http://localhost:8000/docs`
+2. Check CORS settings in `backend/app/main.py` (now set to allow all origins for development)
+3. Verify Firebase credentials are valid
+
+### **Database Migration Error**
+```
+sqlalchemy.exc.OperationalError: could not connect to server
+```
+**Solution**:
+```bash
+docker compose up -d postgres
+alembic upgrade head
+```
+
+### **Firebase Auth Error**
+```
+Error: Failed to get auth token
+```
+**Solution**:
+1. Check Firebase config in `frontend/.env.local`
+2. Ensure Firebase project is active
+3. Verify `firebase-credentials.json` exists in backend
 
 ---
 
 ## 🤝 Contributing
 
-Baca [CONTRIBUTING.md](./CONTRIBUTING.md) untuk panduan berkontribusi.
+Kami menerima kontribusi! Lihat [CONTRIBUTING.md](./CONTRIBUTING.md) untuk panduan detail.
 
-### Development Workflow
+### **Development Workflow**
 1. Fork repository
-2. Buat branch feature: `git checkout -b feature/your-feature`
-3. Commit changes: `git commit -m "Add: description"`
-4. Push: `git push origin feature/your-feature`
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m "Add: amazing feature description"`
+4. Push to branch: `git push origin feature/amazing-feature`
 5. Open Pull Request
 
-### Code Standards
-- Backend: PEP 8 (Black formatter)
-- Frontend: ESLint + Prettier
-- Commit messages: Conventional Commits
+### **Code Standards**
+- **Backend**: PEP 8 (Black formatter)
+- **Frontend**: ESLint + Prettier
+- **Commit Messages**: Conventional Commits (`feat:`, `fix:`, `docs:`, etc.)
 
 ---
 
 ## 📋 Roadmap
 
-### ✅ MVP (Q3 2026 - Selesai)
-- [x] Batch management (CRUD)
-- [x] Fermentation monitoring dengan AI
-- [x] Product recommendations
+### ✅ **MVP (Q3 2026) - Completed**
+- [x] Batch management (CRUD operations)
+- [x] AI fermentation monitoring
+- [x] Product recommendation engine
 - [x] Business analysis & projections
-- [x] User authentication
-- [x] Dashboard UI
+- [x] User authentication (Firebase)
+- [x] Responsive dashboard UI
+- [x] **NEW**: Warm Organic Design System
+- [x] **NEW**: Enhanced CORS & error handling
 
-### 🔄 P1 Features (Q4 2026)
-- [x] Admin dashboard untuk monitoring multi-user
-- [x] PDF export untuk laporan bisnis dan roadmap
-- [x] Environmental impact metrics (CO₂ diverted)
-- [x] Community monitoring trends dan engagement
-- [x] Content CRUD untuk product templates
+### 🔄 **P1 Features (Q4 2026)**
+- [x] Admin dashboard
+- [x] PDF export (reports & roadmaps)
+- [x] Environmental impact tracking
+- [x] Community analytics
 - [ ] Community batch sharing & tips
 - [ ] Regional market data integration
+- [ ] Push notifications (PWA)
 
-### 🎯 P2 Features (Q1 2027)
+### 🎯 **P2 Features (Q1 2027)**
 - [ ] Mobile app (React Native)
-- [ ] ML model optimization dan retraining
-- [ ] Offline sync lanjutan
-- [ ] Multi-language support
-- [ ] Advanced analytics & insights
-
----
-
-## 🐛 Known Issues & Limitations
-
-1. **Firebase Setup**: Memerlukan credentials file (setup manual di cloud)
-2. **Auth Token**: Firebase ID token wajib tersedia untuk endpoint terproteksi
-3. **Database**: PostgreSQL tersedia melalui Docker Compose dan Alembic
-4. **AI Model**: Rule-based classifier; advanced ML dijadwalkan untuk post-launch
-5. **Offline Sync**: Catatan dapat diantrikan di browser dan disinkronkan saat koneksi kembali
-
----
-
-## 📞 Support & Contact
-
-- **Issues**: https://github.com/GomalRajaGula/EcoFlow-AI/issues
-- **Discussions**: https://github.com/GomalRajaGula/EcoFlow-AI/discussions
-- **Email**: contact@ecoflow.local (TBD)
+- [ ] Advanced ML model (TensorFlow)
+- [ ] Offline-first sync enhancement
+- [ ] Multi-language support (EN, ID, TH)
+- [ ] Batch comparison analytics
+- [ ] Integration with IoT sensors
 
 ---
 
 ## 📄 License
 
-Proyek ini dibuat untuk kompetisi ITechnoCup 2026. Hak cipta © 2026 EcoFlow AI Team. Semua hak dilindungi.
+Proyek ini dibuat untuk **ITechnoCup 2026**. Hak cipta © 2026 EcoFlow AI Team.
+
+Untuk informasi lisensi lengkap, lihat [LICENSE](./LICENSE).
 
 ---
 
-**Dibuat dengan ❤️ untuk sustainable living | EcoFlow AI © 2026**
+## 📞 Support & Contact
+
+- **GitHub Issues**: [Report Bug](https://github.com/GomalRajaGula/EcoFlow-AI/issues)
+- **GitHub Discussions**: [Ask Questions](https://github.com/GomalRajaGula/EcoFlow-AI/discussions)
+- **Email**: contact@ecoflow.ai (Coming Soon)
+
+---
+
+## 🌟 Acknowledgments
+
+- **ITechnoCup 2026** - Competition platform
+- **Next.js Team** - Amazing React framework
+- **FastAPI Team** - High-performance Python framework
+- **Firebase** - Authentication & hosting
+- **Tailwind CSS** - Utility-first CSS framework
+- **Eco-enzyme Community** - Inspiration & knowledge sharing
+
+---
+
+<div align="center">
+
+**🌱 Built with ❤️ for Sustainable Living**
+
+**EcoFlow AI © 2026** | [Website](#) | [GitHub](https://github.com/GomalRajaGula/EcoFlow-AI) | [Docs](./docs/)
+
+[![GitHub stars](https://img.shields.io/github/stars/GomalRajaGula/EcoFlow-AI?style=social)](https://github.com/GomalRajaGula/EcoFlow-AI)
+[![GitHub forks](https://img.shields.io/github/forks/GomalRajaGula/EcoFlow-AI?style=social)](https://github.com/GomalRajaGula/EcoFlow-AI/fork)
+
+</div>

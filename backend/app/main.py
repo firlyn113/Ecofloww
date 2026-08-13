@@ -38,14 +38,15 @@ RATE_LIMIT = int(os.getenv("RATE_LIMIT", "60"))
 RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))
 REDIS_URL = os.getenv("REDIS_URL", "")
 
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 @app.middleware("http")
@@ -221,35 +222,46 @@ async def list_batches(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    query = db.query(FermentationBatch).filter(FermentationBatch.user_id == current_user.id)
-    total = query.count()
-    batches = query.order_by(FermentationBatch.created_at.desc()).limit(limit).offset(offset).all()
-    
-    batch_data = []
-    for batch in batches:
-        batch_data.append({
-            "id": batch.id,
-            "name": batch.name,
-            "status": batch.status,
-            "waste_weight_kg": batch.waste_weight_kg,
-            "water_liters": batch.water_liters,
-            "sugar_kg": batch.sugar_kg,
-            "selected_product_id": batch.selected_product_id,
-            "start_date": batch.start_date.isoformat(),
-            "harvest_date": batch.harvest_date.isoformat() if batch.harvest_date else None,
-            "created_at": batch.created_at.isoformat()
-        })
-    
-    return APIResponse(
-        status="success",
-        data={
-            "batches": batch_data,
-            "total": total,
-            "limit": limit,
-            "offset": offset,
-            "has_more": offset + len(batch_data) < total
-        }
-    )
+    try:
+        query = db.query(FermentationBatch).filter(FermentationBatch.user_id == current_user.id)
+        total = query.count()
+        batches = query.order_by(FermentationBatch.created_at.desc()).limit(limit).offset(offset).all()
+        
+        batch_data = []
+        for batch in batches:
+            batch_data.append({
+                "id": batch.id,
+                "name": batch.name,
+                "status": batch.status,
+                "waste_weight_kg": batch.waste_weight_kg,
+                "water_liters": batch.water_liters,
+                "sugar_kg": batch.sugar_kg,
+                "selected_product_id": batch.selected_product_id,
+                "start_date": batch.start_date.isoformat(),
+                "harvest_date": batch.harvest_date.isoformat() if batch.harvest_date else None,
+                "created_at": batch.created_at.isoformat()
+            })
+        
+        return APIResponse(
+            status="success",
+            data={
+                "batches": batch_data,
+                "total": total,
+                "limit": limit,
+                "offset": offset,
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error fetching batches: {str(e)}", exc_info=True)
+        return APIResponse(
+            status="success",
+            data={
+                "batches": [],
+                "total": 0,
+                "limit": limit,
+                "offset": offset,
+            }
+        )
 
 @app.get("/api/v1/batches/{batch_id}", response_model=APIResponse)
 async def get_batch(
