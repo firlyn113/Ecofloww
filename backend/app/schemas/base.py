@@ -169,3 +169,20 @@ class PaginationResponse(BaseModel):
     prev_page: Optional[int] = None
     data: list
 
+class BatchDailyLogBase(BaseModel):
+    log_date: datetime
+    action_taken: str = Field(min_length=1, max_length=200)
+    condition: str = Field(min_length=1, max_length=100)
+    notes: Optional[str] = Field(None, max_length=2000)
+
+class BatchDailyLogCreate(BatchDailyLogBase):
+    pass
+
+class BatchDailyLog(BatchDailyLogBase):
+    id: int
+    batch_id: int
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+

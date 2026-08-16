@@ -11,10 +11,11 @@ import time
 import re
 from app.core.database import get_db, engine, Base
 from app.core.auth import get_current_user
-from app.models.base import User, FermentationBatch, FermentationLog, ProductTemplate
+from app.models.base import User, FermentationBatch, FermentationLog, ProductTemplate, BatchDailyLog
 from app.schemas.base import (
     FermentationBatchCreate, FermentationBatch as BatchSchema,
     FermentationLogCreate, FermentationLog as LogSchema,
+    BatchDailyLogCreate, BatchDailyLog as DailyLogSchema,
     APIResponse, ErrorResponse
 )
 from app.services.eco_enzyme import EcoEnzymeService
@@ -430,6 +431,102 @@ async def get_batch_logs(
             "has_more": offset + len(logs_data) < total
         }
     )
+
+@app.post("/api/v1/batches/{batch_id}/daily-logs", response_model=APIResponse)
+async def create_daily_log(
+    batch_id: int,
+    log_data: BatchDailyLogCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Mencatat progres harian untuk batch eco-enzyme yang sedang aktif.
+    """
+    batch = db.query(FermentationBatch).filter(
+        FermentationBatch.id == batch_id,
+        FermentationBatch.user_id == current_user.id
+    ).first()
+    
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
+    
+    try:
+        new_daily_log = BatchDailyLog(
+            batch_id=batch_id,
+            log_date=log_data.log_date,
+            action_taken=log_data.action_taken,
+            condition=log_data.condition,
+            notes=log_data.notes
+        )
+        db.add(new_daily_log)
+        db.commit()
+        db.refresh(new_daily_log)
+        
+        logger.info(f"Daily log created", extra={"user_id": current_user.id, "batch_id": batch_id, "daily_log_id": new_daily_log.id})
+        
+        return APIResponse(
+            status="success",
+            message="Progres harian berhasil dicatat!",
+            data={
+                "log_id": new_daily_log.id,
+                "batch_id": batch_id,
+                "log_date": new_daily_log.log_date.isoformat(),
+                "action_taken": new_daily_log.action_taken,
+                "condition": new_daily_log.condition,
+                "notes": new_daily_log.notes
+            }
+        )
+    except Exception as e:
+        logger.error(f"Daily log creation error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to create daily log")
+
+
+@app.get("/api/v1/batches/{batch_id}/daily-logs", response_model=APIResponse)
+async def get_batch_daily_logs(
+    batch_id: int,
+    limit: int = 50,
+    offset: int = 0,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Mengambil riwayat progres harian dari batch tertentu.
+    """
+    batch = db.query(FermentationBatch).filter(
+        FermentationBatch.id == batch_id,
+        FermentationBatch.user_id == current_user.id
+    ).first()
+    
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
+    
+    query = db.query(BatchDailyLog).filter(BatchDailyLog.batch_id == batch_id)
+    total = query.count()
+    daily_logs = query.order_by(BatchDailyLog.log_date.desc()).limit(limit).offset(offset).all()
+    
+    logs_data = []
+    for log in daily_logs:
+        logs_data.append({
+            "id": log.id,
+            "batch_id": log.batch_id,
+            "log_date": log.log_date.isoformat(),
+            "action_taken": log.action_taken,
+            "condition": log.condition,
+            "notes": log.notes,
+            "created_at": log.created_at.isoformat()
+        })
+    
+    return APIResponse(
+        status="success",
+        data={
+            "daily_logs": logs_data,
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+            "has_more": offset + len(logs_data) < total
+        }
+    )
+
 
 @app.get("/health")
 async def health_check():

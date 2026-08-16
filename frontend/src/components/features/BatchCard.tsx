@@ -32,13 +32,14 @@ interface Batch {
 interface BatchCardProps {
   batch: Batch;
   onLogClick?: () => void;
+  onDailyLogClick?: () => void;
   onRecommendationClick?: () => void;
   onAnalysisClick?: () => void;
   onRoadmapClick?: () => void;
   isCompleted?: boolean;
 }
 
-export default function BatchCard({ batch, onLogClick, onRecommendationClick, onAnalysisClick, onRoadmapClick, isCompleted }: BatchCardProps) {
+export default function BatchCard({ batch, onLogClick, onDailyLogClick, onRecommendationClick, onAnalysisClick, onRoadmapClick, isCompleted }: BatchCardProps) {
   const startDate = parseISO(batch.start_date);
   const harvestDate = parseISO(batch.harvest_date);
   const now = new Date();
@@ -161,6 +162,15 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
                  _hover={{ bg: '#2a8a42' }}
                >
                  Tambah Catatan Fermentasi
+               </Button>
+               <Button
+                 bg="teal.500"
+                 color="white"
+                 size="sm"
+                 onClick={onDailyLogClick}
+                 _hover={{ bg: 'teal.600' }}
+               >
+                 📝 Catat Progres Harian
                </Button>
                <Button
                  bg="blue.500"

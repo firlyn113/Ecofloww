@@ -7,6 +7,8 @@ import { useBatches, type Batch } from '@/lib/batches-context';
 import CreateBatchModal from '@/src/components/features/CreateBatchModal';
 import BatchCard from '@/src/components/features/BatchCard';
 import FermentationLogModal from '@/src/components/features/FermentationLogModal';
+import DailyLogModal from '@/src/components/features/DailyLogModal';
+import DailyProgressHistory from '@/src/components/features/DailyProgressHistory';
 import ProductRecommendationModal from '@/src/components/features/ProductRecommendationModal';
 import BusinessAnalysisModal from '@/src/components/features/BusinessAnalysisModal';
 import RoadmapModal from '@/src/components/features/RoadmapModal';
@@ -18,6 +20,7 @@ export default function DashboardPage() {
   const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLogModal, setShowLogModal] = useState(false);
+  const [showDailyLogModal, setShowDailyLogModal] = useState(false);
   const [showRecommendationModal, setShowRecommendationModal] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [showRoadmapModal, setShowRoadmapModal] = useState(false);
@@ -54,6 +57,12 @@ export default function DashboardPage() {
   const handleLogCreated = async () => {
     await refreshBatches();
     setShowLogModal(false);
+    setSelectedBatch(null);
+  };
+
+  const handleDailyLogCreated = async () => {
+    await refreshBatches();
+    setShowDailyLogModal(false);
     setSelectedBatch(null);
   };
 
@@ -176,6 +185,10 @@ export default function DashboardPage() {
                         setSelectedBatch(batch);
                         setShowLogModal(true);
                       }}
+                      onDailyLogClick={() => {
+                        setSelectedBatch(batch);
+                        setShowDailyLogModal(true);
+                      }}
                       onRecommendationClick={() => {
                         setSelectedBatch(batch);
                         setShowRecommendationModal(true);
@@ -191,6 +204,7 @@ export default function DashboardPage() {
                       }}
                     />
                     <MilestonesPanel batchId={batch.id} />
+                    <DailyProgressHistory batchId={batch.id} />
                   </div>
                 ))}
               </div>
@@ -247,6 +261,15 @@ export default function DashboardPage() {
           onClose={() => setShowLogModal(false)}
           batch={selectedBatch}
           onSuccess={handleLogCreated}
+        />
+      )}
+
+      {selectedBatch && (
+        <DailyLogModal
+          isOpen={showDailyLogModal}
+          onClose={() => setShowDailyLogModal(false)}
+          batch={selectedBatch}
+          onSuccess={handleDailyLogCreated}
         />
       )}
 

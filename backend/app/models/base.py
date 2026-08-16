@@ -137,3 +137,18 @@ class RoadmapProgress(Base):
     user = relationship("User", backref="roadmaps")
     batch = relationship("FermentationBatch", backref="roadmap")
     template = relationship("ProductTemplate")
+
+
+class BatchDailyLog(Base):
+    __tablename__ = "batch_daily_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), index=True)
+    log_date = Column(DateTime, nullable=False)
+    action_taken = Column(String, nullable=False)
+    condition = Column(String, nullable=False)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+    batch = relationship("FermentationBatch", backref="daily_logs")
