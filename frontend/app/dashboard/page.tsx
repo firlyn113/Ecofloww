@@ -83,7 +83,7 @@ export default function DashboardPage() {
   return (
     <>
       <GreetingBanner 
-        userName={user?.displayName || 'User'} 
+        userName={user?.displayName || 'Pengguna'} 
         onCreateBatch={() => setShowCreateModal(true)}
       />
 
@@ -134,7 +134,7 @@ export default function DashboardPage() {
               <div className="flex items-start gap-3 justify-between">
                 <span className="text-xl" aria-hidden="true">⚠️</span>
                 <div className="flex-1">
-                  <p className="font-semibold text-red-900">Error</p>
+                  <p className="font-semibold text-red-900">Terjadi Kesalahan</p>
                   <p className="text-sm text-red-700 mt-1">{error}</p>
                 </div>
                 <button

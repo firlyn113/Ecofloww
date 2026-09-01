@@ -13,12 +13,11 @@ async def get_user_impact(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    batches = db.query(FermentationBatch).filter(FermentationBatch.user_id == current_user.id).all()
-    impact_data = EnvironmentalImpactService.calculate_impact_summary(batches)
+    impact_data = EnvironmentalImpactService.calculate_user_impact(db, current_user.id)
     
     return APIResponse(
         status="success",
-        message="User environmental impact retrieved",
+        message="Dampak lingkungan pengguna berhasil diambil",
         data=impact_data
     )
 
@@ -34,13 +33,13 @@ async def get_batch_impact(
     ).first()
     
     if not batch:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch tidak ditemukan")
         
     waste_weight_kg = batch.waste_weight_kg if batch.waste_weight_kg else 0.0
     impact_data = EnvironmentalImpactService.calculate_batch_impact(waste_weight_kg)
     
     return APIResponse(
         status="success",
-        message="Batch environmental impact retrieved",
+        message="Dampak lingkungan batch berhasil diambil",
         data=impact_data
     )

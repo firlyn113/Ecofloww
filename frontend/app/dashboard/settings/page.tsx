@@ -24,7 +24,7 @@ export default function SettingsPage() {
     apiClient
       .get('/api/v1/users/me')
       .then((response) => setProfile(response.data.data))
-      .catch((error) => console.error('Failed to load profile:', error))
+      .catch((error) => console.error('Gagal memuat profil:', error))
       .finally(() => setLoadingProfile(false));
   }, [user, authLoading]);
 

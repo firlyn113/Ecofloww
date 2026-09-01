@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import defaultdict, deque
 import logging
 import os
@@ -11,11 +11,12 @@ import time
 import re
 from app.core.database import get_db, engine, Base
 from app.core.auth import get_current_user
-from app.models.base import User, FermentationBatch, FermentationLog, ProductTemplate, BatchDailyLog
+from app.models.base import User, FermentationBatch, FermentationLog, ProductTemplate, BatchDailyLog, RoadmapProgress, ProductRecommendation
 from app.schemas.base import (
     FermentationBatchCreate, FermentationBatch as BatchSchema,
     FermentationLogCreate, FermentationLog as LogSchema,
     BatchDailyLogCreate, BatchDailyLog as DailyLogSchema,
+    BatchStatusUpdate,
     APIResponse, ErrorResponse
 )
 from app.services.eco_enzyme import EcoEnzymeService
@@ -172,14 +173,14 @@ def seed_product_templates():
     try:
         if db.query(ProductTemplate).count() == 0:
             templates = [
-                ProductTemplate(id=1, name="Household Cleaner", description="Multi-purpose eco-enzyme cleaner for household surfaces", processing_instructions="Dilute 1:10 with water. Spray on surfaces and wipe clean.", ingredients=["eco-enzyme", "water"], equipment=["spray bottle", "cloth"], time_estimate_hours=0.5, safety_warnings="Avoid contact with eyes."),
-                ProductTemplate(id=2, name="Disinfectant", description="Eco-enzyme based disinfectant for sanitizing", processing_instructions="Dilute 1:5 with water. Apply to surfaces, let sit 10 minutes.", ingredients=["eco-enzyme", "water"], equipment=["spray bottle", "gloves"], time_estimate_hours=0.5, safety_warnings="Use gloves when handling concentrated solution."),
-                ProductTemplate(id=3, name="Liquid Fertilizer", description="Organic liquid fertilizer from eco-enzyme", processing_instructions="Dilute 1:100 with water. Apply to soil around plants.", ingredients=["eco-enzyme", "water"], equipment=["watering can"], time_estimate_hours=0.25, safety_warnings="Do not apply to edible plant parts directly."),
-                ProductTemplate(id=4, name="Pest Repellent", description="Natural pest repellent using eco-enzyme", processing_instructions="Dilute 1:10 with water. Spray on plant leaves.", ingredients=["eco-enzyme", "water"], equipment=["spray bottle"], time_estimate_hours=0.25, safety_warnings="Test on small area first."),
-                ProductTemplate(id=5, name="Drain Cleaner", description="Eco-enzyme drain cleaner and deodorizer", processing_instructions="Pour undiluted into drain. Let sit overnight.", ingredients=["eco-enzyme"], equipment=["measuring cup"], time_estimate_hours=0.1, safety_warnings="Do not mix with chemical cleaners."),
-                ProductTemplate(id=6, name="Odor Neutralizer", description="Natural odor neutralizer for rooms and fabrics", processing_instructions="Dilute 1:20 with water. Mist in air or on fabrics.", ingredients=["eco-enzyme", "water"], equipment=["mist spray bottle"], time_estimate_hours=0.25, safety_warnings="Test on inconspicuous area of fabric first."),
-                ProductTemplate(id=7, name="Cosmetic Base", description="Eco-enzyme base for natural cosmetic products", processing_instructions="Filter thoroughly. Mix with carrier ingredients per recipe.", ingredients=["eco-enzyme", "carrier oil", "essential oil"], equipment=["filter", "mixing bowl", "containers"], time_estimate_hours=2.0, safety_warnings="Perform patch test before use. Not for ingestion."),
-                ProductTemplate(id=8, name="Animal Feed Additive", description="Eco-enzyme additive for animal feed supplementation", processing_instructions="Dilute 1:200 with water. Mix into animal feed.", ingredients=["eco-enzyme", "water"], equipment=["measuring cup", "mixing bucket"], time_estimate_hours=0.25, safety_warnings="Consult veterinarian for dosage. Start with small amounts."),
+                ProductTemplate(id=1, name="Pembersih Rumah Tangga", description="Pembersih serbaguna berbasis eco-enzyme untuk perabot rumah tangga", processing_instructions="Encerkan 1:10 dengan air. Semprotkan ke permukaan lalu lap bersih.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot", "kain lap"], time_estimate_hours=0.5, safety_warnings="Hindari kontak langsung dengan mata."),
+                ProductTemplate(id=2, name="Disinfektan", description="Disinfektan berbasis eco-enzyme untuk sanitasi", processing_instructions="Encerkan 1:5 dengan air. Aplikasikan pada permukaan, diamkan 10 menit.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot", "sarung tangan"], time_estimate_hours=0.5, safety_warnings="Gunakan sarung tangan saat menangani larutan pekat."),
+                ProductTemplate(id=3, name="Pupuk Cair Organik", description="Pupuk cair organik dari eco-enzyme", processing_instructions="Encerkan 1:100 dengan air. Siramkan ke tanah sekitar tanaman.", ingredients=["eco-enzyme", "air"], equipment=["gembor/alat penyiram"], time_estimate_hours=0.25, safety_warnings="Jangan aplikasikan langsung pada bagian tanaman yang dikonsumsi."),
+                ProductTemplate(id=4, name="Pengusir Hama Alami", description="Pengusir hama alami berbasis eco-enzyme", processing_instructions="Encerkan 1:10 dengan air. Semprotkan pada daun tanaman.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot"], time_estimate_hours=0.25, safety_warnings="Uji coba pada area kecil terlebih dahulu."),
+                ProductTemplate(id=5, name="Pembersih Saluran Air", description="Pembersih dan penetral bau saluran pembuangan", processing_instructions="Tuangkan tanpa diencerkan ke saluran air. Diamkan semalaman.", ingredients=["eco-enzyme"], equipment=["gelas ukur"], time_estimate_hours=0.1, safety_warnings="Jangan dicampur dengan pembersih kimia."),
+                ProductTemplate(id=6, name="Penetral Bau", description="Penetral bau alami untuk ruangan dan kain", processing_instructions="Encerkan 1:20 dengan air. Semprotkan halus ke udara atau kain.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot kabut"], time_estimate_hours=0.25, safety_warnings="Uji coba pada bagian kain yang tidak mencolok."),
+                ProductTemplate(id=7, name="Bahan Dasar Kosmetik", description="Bahan dasar eco-enzyme untuk produk kosmetik alami", processing_instructions="Saring dengan baik. Campurkan dengan bahan sesuai resep.", ingredients=["eco-enzyme", "minyak pembawa", "minyak esensial"], equipment=["saringan", "mangkuk pencampur", "wadah"], time_estimate_hours=2.0, safety_warnings="Lakukan uji tempel kulit sebelum penggunaan. Tidak untuk dikonsumsi."),
+                ProductTemplate(id=8, name="Suplemen Pakan Ternak", description="Suplemen aditif pakan ternak berbasis eco-enzyme", processing_instructions="Encerkan 1:200 dengan air. Campurkan ke pakan ternak.", ingredients=["eco-enzyme", "air"], equipment=["gelas ukur", "ember pencampur"], time_estimate_hours=0.25, safety_warnings="Konsultasikan takaran dengan dokter hewan. Mulai dari jumlah kecil."),
             ]
             db.add_all(templates)
             db.commit()
@@ -207,7 +208,10 @@ async def create_batch(
         )
         db.add(new_batch)
         
-        current_user.waste_diverted_kg = (current_user.waste_diverted_kg or 0.0) + batch_data.waste_weight_kg
+        # PERBAIKAN: waste_diverted_kg TIDAK lagi dihitung di sini.
+        # Limbah hanya dianggap "teralihkan" setelah batch berhasil selesai
+        # (status completed/harvested), bukan saat baru dibuat.
+        # Lihat endpoint update_batch_status untuk implementasi yang benar.
         
         db.commit()
         db.refresh(new_batch)
@@ -326,7 +330,35 @@ async def create_fermentation_log(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
     
     try:
+        # PERBAIKAN: Validasi tanggal log tidak boleh sebelum tanggal mulai batch
         incubation_day = (log_data.log_date.date() - batch.start_date.date()).days
+        if incubation_day < 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Tanggal log ({log_data.log_date.date()}) tidak boleh sebelum "
+                       f"tanggal mulai batch ({batch.start_date.date()})"
+            )
+        
+        # PERBAIKAN: Cek apakah sudah ada log untuk hari fermentasi yang sama
+        existing_log = db.query(FermentationLog).filter(
+            FermentationLog.batch_id == batch_id,
+        ).all()
+        for el in existing_log:
+            existing_day = (el.log_date.date() - batch.start_date.date()).days
+            if existing_day == incubation_day:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Sudah ada catatan untuk hari fermentasi ke-{incubation_day}. "
+                           f"Hapus catatan lama terlebih dahulu jika ingin mengganti."
+                )
+        
+        # PERBAIKAN: Validasi suhu dan pH (jika ada)
+        if log_data.temperature_c is not None:
+            if log_data.temperature_c < -10 or log_data.temperature_c > 60:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Suhu harus antara -10°C dan 60°C"
+                )
         
         status_pred, confidence, suggestion = FermentationAssistantService.classify_fermentation(
             aroma=log_data.aroma,
@@ -526,6 +558,83 @@ async def get_batch_daily_logs(
             "has_more": offset + len(logs_data) < total
         }
     )
+
+
+@app.put("/api/v1/batches/{batch_id}/status", response_model=APIResponse)
+async def update_batch_status(
+    batch_id: int,
+    status_data: BatchStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    batch = db.query(FermentationBatch).filter(
+        FermentationBatch.id == batch_id,
+        FermentationBatch.user_id == current_user.id
+    ).first()
+    
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch tidak ditemukan")
+        
+    old_status = batch.status
+    new_status = status_data.new_status
+    valid_statuses = ["pending_start", "in_progress", "completed", "harvested", "failed", "paused"]
+    
+    if new_status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Status '{new_status}' tidak valid")
+        
+    valid = True
+    if old_status == "pending_start" and new_status != "in_progress":
+        valid = False
+    elif old_status == "in_progress" and new_status not in ["completed", "failed", "paused"]:
+        valid = False
+    elif old_status == "paused" and new_status not in ["in_progress", "failed"]:
+        valid = False
+    elif old_status == "completed" and new_status != "harvested":
+        valid = False
+    elif old_status in ["failed", "harvested"]:
+        valid = False
+        
+    if not valid:
+        raise HTTPException(status_code=400, detail=f"Transisi status dari '{old_status}' ke '{new_status}' tidak diizinkan")
+        
+    batch.status = new_status
+    
+    if new_status in ["completed", "harvested"] and old_status not in ["completed", "harvested"]:
+        current_user.waste_diverted_kg += batch.waste_weight_kg
+    elif old_status in ["completed", "harvested"] and new_status not in ["completed", "harvested"]:
+        current_user.waste_diverted_kg = max(0.0, current_user.waste_diverted_kg - batch.waste_weight_kg)
+        
+    db.commit()
+    db.refresh(batch)
+    
+    return APIResponse(status="success", message="Status batch berhasil diperbarui", data={"id": batch.id, "status": batch.status})
+
+@app.delete("/api/v1/batches/{batch_id}", response_model=APIResponse)
+async def delete_batch(
+    batch_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    batch = db.query(FermentationBatch).filter(
+        FermentationBatch.id == batch_id,
+        FermentationBatch.user_id == current_user.id
+    ).first()
+    
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch tidak ditemukan")
+        
+    db.query(FermentationLog).filter(FermentationLog.batch_id == batch_id).delete()
+    db.query(BatchDailyLog).filter(BatchDailyLog.batch_id == batch_id).delete()
+    db.query(RoadmapProgress).filter(RoadmapProgress.batch_id == batch_id).delete()
+    db.query(ProductRecommendation).filter(ProductRecommendation.batch_id == batch_id).delete()
+    
+    if batch.status in ["completed", "harvested"]:
+        current_user.waste_diverted_kg = max(0.0, current_user.waste_diverted_kg - batch.waste_weight_kg)
+        
+    db.delete(batch)
+    db.commit()
+    
+    return APIResponse(status="success", message="Batch berhasil dihapus")
 
 
 @app.get("/health")

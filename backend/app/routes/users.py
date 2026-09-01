@@ -46,7 +46,7 @@ async def update_me(
     db.refresh(current_user)
     return APIResponse(
         status="success",
-        message="Profile updated",
+        message="Profil diperbarui",
         data={
             "id": current_user.id,
             "email": current_user.email or "",

@@ -1,106 +1,109 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import apiClient from '@/lib/api';
+import { Box, Card, CardBody, Heading, VStack, HStack, Icon, Text, Badge } from '@chakra-ui/react';
+import { FiAward, FiCheckCircle, FiLock } from 'react-icons/fi';
 
-interface Milestone {
-  day: number;
-  description: string;
+interface UserStats {
+  total_batches?: number;
+  completed_batches?: number;
+  total_logs?: number;
+  total_harvests?: number;
+  waste_diverted_kg?: number;
 }
 
-interface DashboardData {
-  batch_id: number;
-  batch_name: string;
-  status: string;
-  waste_diverted_kg: number;
-  incubation_days: number;
-  expected_harvest_date: string | null;
-  latest_status: string | null;
-  latest_health_score: number | null;
-  total_logs: number;
-  upcoming_milestones: Milestone[];
+interface MilestonesPanelProps {
+  stats?: UserStats;
 }
 
-export default function MilestonesPanel({ batchId }: { batchId: number }) {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function MilestonesPanel({ stats = {} }: MilestonesPanelProps) {
+  const {
+    total_batches = 0,
+    completed_batches = 0,
+    total_logs = 0,
+    total_harvests = 0,
+    waste_diverted_kg = 0,
+  } = stats;
 
-  useEffect(() => {
-    let cancelled = false;
-    apiClient
-      .get(`/api/v1/batches/${batchId}/dashboard`)
-      .then((response) => {
-        if (!cancelled) {
-          setData(response.data.data);
-        }
-      })
-      .catch(() => undefined)
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [batchId]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2 px-2 py-3 text-sm text-slate-400">
-        <div className="animate-spin h-4 w-4 border-t-2 border-b-2 border-emerald-500 rounded-full" />
-        Memuat milestone...
-      </div>
-    );
-  }
-
-  if (!data || !data.upcoming_milestones || data.upcoming_milestones.length === 0) {
-    return null;
-  }
+  const milestones = [
+    {
+      title: 'Batch Pertama Dibuat',
+      description: 'Anda telah memulai perjalanan eco-enzyme Anda.',
+      isUnlocked: total_batches >= 1,
+    },
+    {
+      title: '10 Catatan Tercatat',
+      description: 'Konsisten memantau perkembangan batch Anda.',
+      isUnlocked: total_logs >= 10,
+    },
+    {
+      title: 'Panen Pertama',
+      description: 'Berhasil memanen eco-enzyme untuk pertama kalinya.',
+      isUnlocked: total_harvests >= 1,
+    },
+    {
+      title: '5 Batch Diselesaikan',
+      description: 'Menyelesaikan 5 batch fermentasi.',
+      isUnlocked: completed_batches >= 5,
+    },
+    {
+      title: 'Juara Eco',
+      description: 'Mengalihkan lebih dari 10kg sampah organik.',
+      isUnlocked: waste_diverted_kg >= 10,
+    },
+  ];
 
   return (
-    <div className="mt-3 px-2">
-      <p className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">
-        Milestone Berikutnya
-      </p>
-      <ol className="space-y-2">
-        {data.upcoming_milestones.map((milestone, index) => {
-          const isReached = data.incubation_days >= milestone.day;
-          return (
-            <li key={index} className="flex items-start gap-2">
-              <span
-                aria-hidden="true"
-                className={`mt-0.5 w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${
-                  isReached
-                    ? 'bg-emerald-500 border-emerald-500 text-white'
-                    : 'border-slate-300 bg-white'
-                }`}
-              >
-                {isReached && (
-                  <svg viewBox="0 0 12 12" className="w-2.5 h-2.5" fill="currentColor">
-                    <path d="M10.7 2.3a1 1 0 0 1 0 1.4l-5 5a1 1 0 0 1-1.4 0l-3-3a1 1 0 1 1 1.4-1.4L5 6.6l4.3-4.3a1 1 0 0 1 1.4 0z" />
-                  </svg>
-                )}
-              </span>
-              <div className="flex-1">
-                <p
-                  className={`text-sm font-medium ${
-                    isReached ? 'text-emerald-700 line-through' : 'text-slate-700'
-                  }`}
-                >
-                  Hari ke-{milestone.day}
-                  {isReached && (
-                    <span className="ml-2 text-xs font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                      tercapai
-                    </span>
-                  )}
-                </p>
-                <p className="text-xs text-slate-500">{milestone.description}</p>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </div>
+    <Box>
+      <VStack align="stretch" spacing={4}>
+        <HStack spacing={3} mb={2}>
+          <Icon as={FiAward} boxSize={6} color="amber.500" />
+          <Heading size="md" color="stone.900">
+            Pencapaian
+          </Heading>
+        </HStack>
+
+        <VStack align="stretch" spacing={3}>
+          {milestones.map((milestone, index) => (
+            <Card
+              key={index}
+              borderRadius="lg"
+              borderWidth={1}
+              borderColor={milestone.isUnlocked ? 'emerald.200' : 'stone.200'}
+              bg={milestone.isUnlocked ? 'emerald.50' : 'white'}
+              opacity={milestone.isUnlocked ? 1 : 0.7}
+              transition="all 0.2s"
+            >
+              <CardBody p={4}>
+                <HStack spacing={4}>
+                  <Box
+                    p={2}
+                    borderRadius="full"
+                    bg={milestone.isUnlocked ? 'emerald.100' : 'stone.100'}
+                    color={milestone.isUnlocked ? 'emerald.600' : 'stone.400'}
+                  >
+                    <Icon as={milestone.isUnlocked ? FiCheckCircle : FiLock} boxSize={5} />
+                  </Box>
+                  <VStack align="start" spacing={0} flex={1}>
+                    <Text fontWeight="bold" color={milestone.isUnlocked ? 'emerald.900' : 'stone.700'}>
+                      {milestone.title}
+                    </Text>
+                    <Text fontSize="sm" color={milestone.isUnlocked ? 'emerald.700' : 'stone.500'}>
+                      {milestone.description}
+                    </Text>
+                  </VStack>
+                  <Badge
+                    colorScheme={milestone.isUnlocked ? 'emerald' : 'gray'}
+                    variant={milestone.isUnlocked ? 'solid' : 'subtle'}
+                  >
+                    {milestone.isUnlocked ? 'Tercapai' : 'Terkunci'}
+                  </Badge>
+                </HStack>
+              </CardBody>
+            </Card>
+          ))}
+        </VStack>
+      </VStack>
+    </Box>
   );
 }
+

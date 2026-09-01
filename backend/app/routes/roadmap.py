@@ -22,11 +22,11 @@ async def create_roadmap(
     ).first()
     
     if not batch:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch tidak ditemukan")
         
     existing_roadmap = db.query(RoadmapProgress).filter(RoadmapProgress.batch_id == batch_id).first()
     if existing_roadmap:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Roadmap already exists for this batch")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Roadmap sudah ada untuk batch ini")
         
     try:
         generated_data = RoadmapService.generate_roadmap(roadmap_req.product_template_id, db)
@@ -45,7 +45,7 @@ async def create_roadmap(
         
         return APIResponse(
             status="success",
-            message="Roadmap created successfully",
+            message="Roadmap berhasil dibuat",
             data=RoadmapService.get_progress_summary(new_roadmap)
         )
     except ValueError as e:
@@ -65,7 +65,7 @@ async def get_roadmap(
     ).first()
     
     if not roadmap:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap tidak ditemukan")
         
     return APIResponse(
         status="success",
@@ -83,13 +83,13 @@ async def download_roadmap_report(
         RoadmapProgress.user_id == current_user.id,
     ).first()
     if not roadmap:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap tidak ditemukan")
     content = ReportService.generate_roadmap_pdf(
         batch_id,
         {
-            "template_name": roadmap.template.name if roadmap.template else "Eco-Enzyme Product",
+            "template_name": roadmap.template.name if roadmap.template else "Produk Eco-Enzyme",
             "steps": roadmap.steps_json,
-            "safety_warnings": roadmap.template.safety_warnings if roadmap.template else "Follow safe handling practices.",
+            "safety_warnings": roadmap.template.safety_warnings if roadmap.template else "Ikuti petunjuk penanganan yang aman.",
             "tutorial_url": roadmap.template.tutorial_url if roadmap.template else None,
         },
     )
@@ -113,13 +113,13 @@ async def update_roadmap_step(
     ).first()
     
     if not roadmap:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap tidak ditemukan")
         
     try:
         summary = RoadmapService.update_step_status(roadmap, step_index, update_req.completed, db)
         return APIResponse(
             status="success",
-            message="Step updated successfully",
+            message="Langkah berhasil diperbarui",
             data=summary
         )
     except ValueError as e:

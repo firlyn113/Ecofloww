@@ -20,68 +20,68 @@ class RoadmapService:
         """
         template = db.query(ProductTemplate).filter(ProductTemplate.id == product_template_id).first()
         if not template:
-            raise ValueError("Product template not found")
+            raise ValueError("Template produk tidak ditemukan")
 
         steps = []
         
         steps.append({
-            "title": "Gathering Ingredients",
-            "description": "Collect all necessary ingredients.",
-            "details": f"Ingredients required: {', '.join(template.ingredients) if template.ingredients else 'None listed'}",
+            "title": "Pengumpulan Bahan Baku",
+            "description": "Kumpulkan semua bahan yang diperlukan.",
+            "details": f"Bahan yang diperlukan: {', '.join(template.ingredients) if template.ingredients else 'Tidak ada yang terdaftar'}",
             "completed": False
         })
         
         steps.append({
-            "title": "Preparing Equipment",
-            "description": "Ensure all equipment is clean and ready.",
-            "details": f"Equipment required: {', '.join(template.equipment) if template.equipment else 'None listed'}",
+            "title": "Penyiapan Peralatan",
+            "description": "Pastikan semua peralatan bersih dan siap digunakan.",
+            "details": f"Peralatan yang diperlukan: {', '.join(template.equipment) if template.equipment else 'Tidak ada yang terdaftar'}",
             "completed": False
         })
         
         if template.id == 1:
             steps.extend([
-                {"title": "Dilution", "description": "Dilute 1:10 with water.", "details": "Mix the eco-enzyme with water properly.", "completed": False},
-                {"title": "Bottling", "description": "Transfer to spray bottles.", "details": "Fill spray bottles carefully.", "completed": False}
+                {"title": "Pengenceran", "description": "Encerkan 1:10 dengan air.", "details": "Campurkan eco-enzyme dengan air secara merata.", "completed": False},
+                {"title": "Pengemasan Botol", "description": "Pindahkan ke dalam botol semprot.", "details": "Isi botol semprot dengan hati-hati.", "completed": False}
             ])
         elif template.id == 2:
             steps.extend([
-                {"title": "Preparation", "description": "Put on gloves.", "details": "Always use gloves for concentrated solutions.", "completed": False},
-                {"title": "Dilution", "description": "Dilute 1:5 with water.", "details": "Mix the solution accurately.", "completed": False}
+                {"title": "Persiapan", "description": "Gunakan sarung tangan pelindung.", "details": "Selalu gunakan sarung tangan untuk larutan pekat.", "completed": False},
+                {"title": "Pengenceran", "description": "Encerkan 1:5 dengan air.", "details": "Campurkan larutan secara akurat.", "completed": False}
             ])
         elif template.id == 3:
             steps.extend([
-                {"title": "Dilution", "description": "Dilute 1:100 with water.", "details": "Prepare the fertilizer mix.", "completed": False},
-                {"title": "Application Prep", "description": "Transfer to watering can.", "details": "Ready the watering can for application.", "completed": False}
+                {"title": "Pengenceran", "description": "Encerkan 1:100 dengan air.", "details": "Siapkan campuran pupuk cair.", "completed": False},
+                {"title": "Persiapan Aplikasi", "description": "Pindahkan ke gembor/alat penyiram.", "details": "Siapkan alat penyiram untuk pengaplikasian.", "completed": False}
             ])
         elif template.id == 4:
             steps.extend([
-                {"title": "Dilution", "description": "Dilute 1:10 with water.", "details": "Prepare the repellent mix.", "completed": False},
-                {"title": "Testing", "description": "Test on a small area.", "details": "Apply to a single leaf first.", "completed": False}
+                {"title": "Pengenceran", "description": "Encerkan 1:10 dengan air.", "details": "Siapkan campuran pengusir hama.", "completed": False},
+                {"title": "Pengujian", "description": "Uji coba pada area kecil terlebih dahulu.", "details": "Semprotkan ke satu helai daun terlebih dahulu.", "completed": False}
             ])
         elif template.id == 5:
             steps.extend([
-                {"title": "Measurement", "description": "Measure the required amount.", "details": "Use undiluted solution.", "completed": False},
-                {"title": "Application", "description": "Pour into drain.", "details": "Let it sit overnight.", "completed": False}
+                {"title": "Pengukuran Takaran", "description": "Ukur takaran yang dibutuhkan.", "details": "Gunakan larutan murni tanpa pengenceran.", "completed": False},
+                {"title": "Pengaplikasian", "description": "Tuangkan ke saluran pembuangan.", "details": "Diamkan semalaman.", "completed": False}
             ])
         elif template.id == 6:
             steps.extend([
-                {"title": "Dilution", "description": "Dilute 1:20 with water.", "details": "Mix the neutralizer solution.", "completed": False},
-                {"title": "Testing", "description": "Test on fabric.", "details": "Test on an inconspicuous area first.", "completed": False}
+                {"title": "Pengenceran", "description": "Encerkan 1:20 dengan air.", "details": "Campurkan larutan penetral bau.", "completed": False},
+                {"title": "Pengujian", "description": "Uji pada permukaan kain.", "details": "Uji coba pada bagian yang tidak mencolok.", "completed": False}
             ])
         elif template.id == 7:
             steps.extend([
-                {"title": "Filtering", "description": "Filter the eco-enzyme thoroughly.", "details": "Ensure there are no large particles.", "completed": False},
-                {"title": "Mixing", "description": "Mix with carrier and essential oils.", "details": "Follow the cosmetic recipe.", "completed": False},
-                {"title": "Patch Test", "description": "Perform a patch test.", "details": "Apply a small amount to skin and wait 24 hours.", "completed": False}
+                {"title": "Penyaringan", "description": "Saring eco-enzyme hingga bersih.", "details": "Pastikan tidak ada partikel besar.", "completed": False},
+                {"title": "Pencampuran", "description": "Campurkan dengan minyak pembawa dan minyak esensial.", "details": "Ikuti panduan formula kosmetik.", "completed": False},
+                {"title": "Uji Tempel Kulit", "description": "Lakukan uji tempel pada kulit.", "details": "Oleskan sedikit pada kulit dan tunggu 24 jam.", "completed": False}
             ])
         elif template.id == 8:
             steps.extend([
-                {"title": "Consultation", "description": "Consult veterinarian.", "details": "Confirm dosage with a professional.", "completed": False},
-                {"title": "Dilution", "description": "Dilute 1:200 with water.", "details": "Mix the additive thoroughly.", "completed": False},
-                {"title": "Mixing Feed", "description": "Mix into animal feed.", "details": "Ensure even distribution.", "completed": False}
+                {"title": "Konsultasi Ahli", "description": "Konsultasikan dengan dokter hewan.", "details": "Pastikan takaran dosis dengan tenaga profesional.", "completed": False},
+                {"title": "Pengenceran", "description": "Encerkan 1:200 dengan air.", "details": "Campurkan aditif secara merata.", "completed": False},
+                {"title": "Pencampuran Pakan", "description": "Campurkan ke dalam pakan ternak.", "details": "Pastikan persebaran merata.", "completed": False}
             ])
         else:
-            steps.append({"title": "Processing", "description": "Follow instructions.", "details": template.processing_instructions, "completed": False})
+            steps.append({"title": "Pemrosesan", "description": "Ikuti instruksi pemrosesan.", "details": template.processing_instructions, "completed": False})
 
         return {
             "template_name": template.name,
@@ -103,7 +103,7 @@ class RoadmapService:
         from sqlalchemy.orm.attributes import flag_modified
         
         if step_index < 0 or step_index >= len(roadmap.steps_json):
-            raise ValueError("Invalid step index")
+            raise ValueError("Indeks langkah tidak valid")
 
         steps = roadmap.steps_json.copy()
         steps[step_index]["completed"] = completed

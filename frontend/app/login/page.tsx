@@ -92,7 +92,7 @@ export default function LoginPage() {
         phone: phoneNumber,
       });
     } catch (error) {
-      console.error('Failed to persist profile:', error);
+      console.error('Gagal menyimpan profil:', error);
     }
   };
 
@@ -163,7 +163,7 @@ export default function LoginPage() {
             EcoFlow
           </Heading>
           <Text textAlign="center" fontSize="sm" color="gray.600">
-            Smart Eco-Enzyme Fermentation Assistant
+            Asisten Fermentasi Eco-Enzyme Pintar
           </Text>
         </Stack>
 
@@ -236,7 +236,7 @@ export default function LoginPage() {
                 )}
 
                 <FormControl>
-                  <FormLabel htmlFor="password">Password</FormLabel>
+                  <FormLabel htmlFor="password">Kata sandi</FormLabel>
                   <InputGroup>
                     <Input
                       id="password"
@@ -248,7 +248,7 @@ export default function LoginPage() {
                     />
                     <InputRightElement>
                       <IconButton
-                        aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                        aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                         icon={showPassword ? <FiEyeOff /> : <FiEye />}
                         variant="ghost"
                         size="sm"

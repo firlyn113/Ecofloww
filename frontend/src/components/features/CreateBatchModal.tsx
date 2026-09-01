@@ -98,8 +98,19 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
     
     if (!name || !wasteWeight || !waterLiters || !sugarKg || !startDate) {
       toast({
-        title: 'Validation Error',
-        description: 'Please fill in all fields',
+        title: 'Validasi Gagal',
+        description: 'Harap isi semua field yang diperlukan',
+        status: 'error',
+        isClosable: true,
+      });
+      return;
+    }
+
+    const waste = parseFloat(wasteWeight);
+    if (waste <= 0 || waste > 500) {
+      toast({
+        title: 'Validasi Gagal',
+        description: 'Berat limbah harus antara 0.1 kg dan 500 kg',
         status: 'error',
         isClosable: true,
       });
@@ -115,11 +126,11 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
       });
 
       toast({
-        title: 'Success',
-        description: `Water: ${response.data.data.calculated_water_liters}L, Sugar: ${response.data.data.calculated_sugar_kg}kg`,
+        title: 'Batch Berhasil Dibuat',
+        description: `Air: ${response.data.data.calculated_water_liters}L, Gula: ${response.data.data.calculated_sugar_kg}kg (Rasio 1:3:10)`,
         status: 'success',
         isClosable: true,
-        duration: 5,
+        duration: 5000,
       });
 
       setName('');
@@ -133,8 +144,8 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
       toast({
-        title: 'Error',
-        description: err.response?.data?.detail || 'Failed to create batch',
+        title: 'Gagal',
+        description: err.response?.data?.detail || 'Gagal membuat batch',
         status: 'error',
         isClosable: true,
       });
@@ -187,14 +198,14 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
               <FormControl isRequired>
                 <FormLabel htmlFor="water-liters">Air (Liter)</FormLabel>
                 <NumberInput value={waterLiters} onChange={setWaterLiters} min={0}>
-                  <NumberInputField id="water-liters" name="waterLiters" placeholder="Misal, 30 (3x berat limbah)" />
+                <NumberInputField id="water-liters" name="waterLiters" placeholder="Misal, 33.33 (10/3 × berat limbah)" />
                 </NumberInput>
               </FormControl>
 
               <FormControl isRequired>
                 <FormLabel htmlFor="sugar-kg">Gula (kg)</FormLabel>
                 <NumberInput value={sugarKg} onChange={setSugarKg} min={0}>
-                  <NumberInputField id="sugar-kg" name="sugarKg" placeholder="Misal, 10 (1x berat limbah)" />
+                  <NumberInputField id="sugar-kg" name="sugarKg" placeholder="Misal, 3.33 (1/3 × berat limbah)" />
                 </NumberInput>
               </FormControl>
 

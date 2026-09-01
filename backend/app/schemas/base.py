@@ -24,8 +24,8 @@ class User(UserBase):
         from_attributes = True
 
 class FermentationBatchBase(BaseModel):
-    name: str = Field(min_length=1, max_length=100)
-    waste_weight_kg: float = Field(gt=0, le=100000, description="Waste weight must be positive")
+    name: str = Field(..., min_length=1, max_length=100, description="Nama batch")
+    waste_weight_kg: float = Field(..., gt=0, le=500, description="Berat limbah dalam kg (0.1-500)")
 
 class FermentationBatchCreate(FermentationBatchBase):
     start_date: datetime
@@ -33,6 +33,10 @@ class FermentationBatchCreate(FermentationBatchBase):
 class FermentationBatchUpdate(BaseModel):
     water_liters: Optional[float] = Field(None, ge=0, description="Water liters must be non-negative")
     sugar_kg: Optional[float] = Field(None, ge=0, description="Sugar kg must be non-negative")
+
+class BatchStatusUpdate(BaseModel):
+    new_status: str
+    notes: Optional[str] = None
 
 class FermentationBatch(FermentationBatchBase):
     id: int
@@ -52,10 +56,10 @@ class FermentationBatch(FermentationBatchBase):
 
 class FermentationLogBase(BaseModel):
     log_date: datetime
-    aroma: str = Field(min_length=1, max_length=50)
-    color: str = Field(min_length=1, max_length=50)
+    aroma: str = Field(..., min_length=1, max_length=50, description="Profil aroma")
+    color: str = Field(..., min_length=1, max_length=50, description="Warna larutan")
     gas_presence: bool
-    temperature_c: float = Field(ge=-50, le=100, description="Temperature must be between -50 and 100 Celsius")
+    temperature_c: float = Field(..., ge=-10, le=60, description="Suhu dalam Celsius")
     notes: Optional[str] = Field(None, max_length=2000)
     image_url: Optional[str] = Field(None, max_length=500)
 
@@ -185,4 +189,16 @@ class BatchDailyLog(BatchDailyLogBase):
     
     class Config:
         from_attributes = True
+
+class BatchStatusUpdate(BaseModel):
+    new_status: str = Field(..., description="Status baru batch")
+    notes: Optional[str] = Field(None, max_length=500, description="Catatan perubahan status")
+    
+    @field_validator('new_status')
+    @classmethod
+    def validate_status(cls, v):
+        valid_statuses = ['in_progress', 'completed', 'harvested', 'failed', 'paused', 'pending', 'pending_start']
+        if v not in valid_statuses:
+            raise ValueError(f'Status tidak valid. Pilihan: {valid_statuses}')
+        return v
 

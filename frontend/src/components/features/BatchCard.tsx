@@ -52,8 +52,9 @@ export default function BatchCard({ batch, onLogClick, onDailyLogClick, onRecomm
       case 'in_progress':
         return 'blue';
       case 'completed':
-      case 'harvested':
         return 'green';
+      case 'harvested':
+        return 'purple';
       case 'failed':
         return 'red';
       default:
@@ -68,8 +69,9 @@ export default function BatchCard({ batch, onLogClick, onDailyLogClick, onRecomm
       case 'pending_start':
         return 'MENUNGGU DIMULAI';
       case 'completed':
-      case 'harvested':
         return 'SELESAI';
+      case 'harvested':
+        return 'DIPANEN';
       case 'failed':
         return 'GAGAL';
       default:

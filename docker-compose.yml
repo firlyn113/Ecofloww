@@ -1,6 +1,5 @@
-version: '3.8'
-
 services:
+  # ==================== POSTGRESQL DATABASE ====================
   postgres:
     image: postgres:16-alpine
     container_name: ecoflow_postgres
@@ -17,7 +16,50 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - ecoflow_network
 
+  # ==================== REDIS CACHE ====================
+  redis:
+    image: redis:7-alpine
+    container_name: ecoflow_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - ecoflow_network
+
+  # ==================== MINIO OBJECT STORAGE ====================
+  minio:
+    image: minio/minio:latest
+    container_name: ecoflow_minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"   # API port
+      - "9001:9001"   # Console port (Web UI)
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - ecoflow_network
+
+  # ==================== BACKEND API ====================
   backend:
     build:
       context: ./backend
@@ -25,6 +67,7 @@ services:
     container_name: ecoflow_backend
     environment:
       DATABASE_URL: postgresql://ecoflow_user:ecoflow_password@postgres:5432/ecoflow
+      REDIS_URL: redis://redis:6379
       FIREBASE_CREDENTIALS_PATH: ./firebase-credentials.json
       SECRET_KEY: dev-secret-key-change-in-production
       ENVIRONMENT: development
@@ -37,30 +80,42 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       minio:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - ./firebase-credentials.json:/app/firebase-credentials.json
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+    networks:
+      - ecoflow_network
 
-  minio:
-    image: minio/minio:latest
-    container_name: ecoflow_minio
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+  # ==================== ADMINER (Database GUI - Opsional) ====================
+  adminer:
+    image: adminer:latest
+    container_name: ecoflow_adminer
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/minio_data
-    command: server /minio_data --console-address ":9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - ecoflow_network
 
+# ==================== VOLUMES (Data Persistence) ====================
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
+    driver: local
   minio_data:
+    driver: local
+
+# ==================== NETWORKS ====================
+networks:
+  ecoflow_network:
+    driver: bridge

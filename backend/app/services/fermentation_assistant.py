@@ -2,7 +2,13 @@ from datetime import datetime, timedelta
 from typing import Tuple
 
 class FermentationAssistantService:
-    """AI klasifikasi status fermentasi eco-enzyme (deterministic rule-based)."""
+    """AI klasifikasi status fermentasi eco-enzyme (deterministic rule-based).
+    
+    Siklus gas fermentasi eco-enzyme:
+    - Minggu 1-4: Gas aktif (gelembung banyak, tekanan tinggi)
+    - Bulan 2: Gas mulai berkurang
+    - Bulan 3 (hari 60-90): Gas minimal/hampir tidak ada → tanda matang
+    """
 
     AROMA_NORMAL = ["sweet", "sour"]
     AROMA_CAUTION = ["slightly_rotten", "unusual"]
@@ -11,6 +17,12 @@ class FermentationAssistantService:
     COLOR_NORMAL = ["brown", "dark_brown", "amber"]
     COLOR_CAUTION = ["unexpected_shift", "unusual"]
     COLOR_FAILED = ["black", "green", "white_mold"]
+
+    # Fase fermentasi berdasarkan hari
+    PHASE_EARLY = 30       # Hari 0-30: fase awal (gas aktif normal)
+    PHASE_MID = 60         # Hari 31-60: fase tengah (gas mulai berkurang)
+    HARVEST_START = 83     # Hari 83: jendela panen dimulai
+    HARVEST_END = 97       # Hari 97: batas akhir jendela panen ideal
     
     @staticmethod
     def classify_fermentation(
@@ -48,46 +60,68 @@ class FermentationAssistantService:
         failed_count = 0
         caution_count = 0
         
+        # Cek aroma
         if aroma_lower in FermentationAssistantService.AROMA_FAILED:
             failed_count += 1
         elif aroma_lower in FermentationAssistantService.AROMA_CAUTION:
             caution_count += 1
         
+        # Cek warna
         if color_lower in FermentationAssistantService.COLOR_FAILED:
             failed_count += 1
         elif color_lower in FermentationAssistantService.COLOR_CAUTION:
             caution_count += 1
         
+        # Cek suhu
         if not temp_optimal:
             caution_count += 1
         
-        if incubation_day < 7 and not gas_presence:
+        # Cek gas berdasarkan fase fermentasi
+        # Fase awal (hari 1-30): gas HARUS ada, tidak ada gas = masalah
+        # Fase tengah (hari 31-60): gas mulai berkurang, normal
+        # Fase akhir (hari 61+): gas seharusnya minimal/tidak ada
+        if incubation_day <= FermentationAssistantService.PHASE_EARLY:
+            # Fase awal: tidak ada gas setelah minggu pertama = caution
+            if incubation_day >= 7 and not gas_presence:
+                caution_count += 1
+        elif incubation_day <= FermentationAssistantService.PHASE_MID:
+            # Fase tengah: gas masih ada itu normal, tidak ada juga normal
             pass
-        elif incubation_day >= 7 and not gas_presence:
-            caution_count += 1
+        else:
+            # Fase akhir (>60 hari): gas masih aktif = caution (belum stabil)
+            if gas_presence:
+                caution_count += 1
         
+        # Tentukan status akhir
         if failed_count >= 1:
             status = "Failed"
             confidence = 0.9
-            suggestion = "Fermentation appears to have failed. Recommend starting over with new batch."
+            suggestion = "Fermentasi tampak gagal. Disarankan untuk memulai batch baru."
         elif caution_count >= 2:
             status = "Caution"
             confidence = 0.7
             suggestions = []
             if not temp_optimal:
                 if temperature_c < 20:
-                    suggestions.append("Increase temperature (ideal: 20-30°C)")
+                    suggestions.append("Naikkan suhu ruangan (ideal: 20-30°C)")
                 else:
-                    suggestions.append("Decrease temperature (ideal: 20-30°C)")
+                    suggestions.append("Turunkan suhu ruangan (ideal: 20-30°C)")
             if aroma_lower in FermentationAssistantService.AROMA_CAUTION:
-                suggestions.append("Monitor aroma closely; slight off-smell may resolve")
+                suggestions.append("Pantau aroma secara ketat; bau sedikit menyimpang mungkin akan membaik")
             if color_lower in FermentationAssistantService.COLOR_CAUTION:
-                suggestions.append("Watch for color changes; unexpected shift may indicate contamination")
-            suggestion = "; ".join(suggestions) if suggestions else "Continue monitoring closely."
+                suggestions.append("Perhatikan perubahan warna; perubahan tak terduga bisa jadi tanda kontaminasi")
+            if incubation_day > FermentationAssistantService.PHASE_MID and gas_presence:
+                suggestions.append("Gas masih aktif setelah 60 hari; fermentasi belum stabil sepenuhnya")
+            suggestion = "; ".join(suggestions) if suggestions else "Terus pantau dengan seksama."
         else:
             status = "Normal"
             confidence = 0.85
-            suggestion = "Fermentation progressing normally. Continue monitoring daily."
+            if incubation_day >= FermentationAssistantService.HARVEST_START:
+                suggestion = "Fermentasi berjalan normal dan sudah memasuki jendela panen. Pertimbangkan untuk memanen."
+            elif incubation_day >= FermentationAssistantService.PHASE_MID:
+                suggestion = "Fermentasi berjalan normal. Memasuki fase pematangan akhir."
+            else:
+                suggestion = "Fermentasi berjalan normal. Terus pantau setiap hari."
         
         return status, confidence, suggestion
     
@@ -123,11 +157,24 @@ class FermentationAssistantService:
     ) -> bool:
         """Tentukan apakah batch sudah masuk jendela panen (hari 83-97).
 
-        True jika: incubation_day di 83-97, status "Normal", ada gas,
-        dan aroma normal (sweet/sour).
+        Kriteria panen yang benar:
+        - Hari fermentasi antara 83-97 (jendela panen ideal)
+        - Status "Normal" (tidak gagal/bermasalah)
+        - Gas TIDAK aktif (fermentasi sudah stabil/matang)
+        - Aroma normal (manis/asam = tanda eco-enzyme sehat)
+        
+        Catatan penting: Pada eco-enzyme yang matang, gas sudah berhenti.
+        Gas aktif di bulan ke-3 justru tanda fermentasi belum selesai.
+
+        Returns:
+            bool: True jika batch siap dipanen.
         """
-        ideal_range = 83 <= incubation_day <= 97
+        ideal_range = (FermentationAssistantService.HARVEST_START 
+                      <= incubation_day 
+                      <= FermentationAssistantService.HARVEST_END)
         is_normal = status == "Normal"
-        ready_signs = gas_presence and aroma.lower() in FermentationAssistantService.AROMA_NORMAL
+        # PERBAIKAN: Gas harus TIDAK ada (fermentasi matang = gas berhenti)
+        ready_signs = (not gas_presence) and aroma.lower() in FermentationAssistantService.AROMA_NORMAL
         
         return ideal_range and is_normal and ready_signs
+

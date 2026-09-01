@@ -41,9 +41,9 @@ class FermentationBatch(Base):
     __tablename__ = "fermentation_batches"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
     name = Column(String)
-    status = Column(String, default="pending")
+    status = Column(String, default="pending", index=True)
     waste_weight_kg = Column(Float)
     water_liters = Column(Float)
     sugar_kg = Column(Float)
@@ -65,7 +65,7 @@ class FermentationLog(Base):
     __tablename__ = "fermentation_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"))
+    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), nullable=False, index=True)
     log_date = Column(DateTime)
     aroma = Column(String)
     color = Column(String)
@@ -77,6 +77,7 @@ class FermentationLog(Base):
     ai_confidence = Column(Float, nullable=True)
     ai_suggestion = Column(Text, nullable=True)
     created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
 
     batch = relationship("FermentationBatch", back_populates="logs")
 
@@ -107,7 +108,8 @@ class ProductRecommendation(Base):
     __tablename__ = "product_recommendations"
 
     id = Column(Integer, primary_key=True, index=True)
-    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), index=True)
+    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), nullable=False, index=True)
+    user_id = Column(String, ForeignKey("users.id"), index=True)
     recommended_products_json = Column(JSON)
     selected_product_id = Column(Integer, ForeignKey("product_templates.id"), nullable=True)
     selection_date = Column(DateTime, nullable=True)
@@ -123,9 +125,9 @@ class RoadmapProgress(Base):
     __tablename__ = "roadmap_progress"
 
     id = Column(Integer, primary_key=True, index=True)
-    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), index=True)
+    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), nullable=False, index=True)
     product_template_id = Column(Integer, ForeignKey("product_templates.id"), index=True)
-    user_id = Column(String, ForeignKey("users.id"), index=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
     steps_json = Column(JSON, default=list)
     current_step = Column(Integer, default=0)
     status = Column(String, default="not_started")
@@ -143,7 +145,7 @@ class BatchDailyLog(Base):
     __tablename__ = "batch_daily_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), index=True)
+    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), nullable=False, index=True)
     log_date = Column(DateTime, nullable=False)
     action_taken = Column(String, nullable=False)
     condition = Column(String, nullable=False)

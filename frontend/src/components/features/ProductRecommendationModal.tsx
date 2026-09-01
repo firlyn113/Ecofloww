@@ -39,7 +39,7 @@ export default function ProductRecommendationModal({
 }: ProductRecommendationModalProps) {
   const [harvestVolume, setHarvestVolume] = useState('');
   const [finalColor, setFinalColor] = useState('dark_brown');
-  const [aromaIntensity, setAromaIntensity] = useState('medium');
+  const [aromaProfile, setAromaProfile] = useState('sweet');
   const [userIntent, setUserIntent] = useState('household');
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<Array<Record<string, unknown>> | null>(null);
@@ -52,8 +52,8 @@ export default function ProductRecommendationModal({
 
     if (!harvestVolume) {
       toast({
-        title: 'Validation Error',
-        description: 'Please enter harvest volume',
+        title: 'Validasi Gagal',
+        description: 'Harap masukkan volume panen',
         status: 'error',
         isClosable: true,
       });
@@ -68,23 +68,23 @@ export default function ProductRecommendationModal({
           harvest_date: new Date().toISOString(),
           harvest_volume_liters: parseFloat(harvestVolume),
           final_color: finalColor,
-          aroma_intensity: aromaIntensity,
+          aroma_profile: aromaProfile,
           user_intent: userIntent,
         }
       );
 
       setRecommendations(response.data.data.recommendations);
       toast({
-        title: 'Success',
-        description: 'Product recommendations generated',
+        title: 'Berhasil',
+        description: 'Rekomendasi produk berhasil dibuat',
         status: 'success',
         isClosable: true,
       });
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
       toast({
-        title: 'Error',
-        description: err.response?.data?.detail || 'Failed to get recommendations',
+        title: 'Gagal',
+        description: err.response?.data?.detail || 'Gagal mendapatkan rekomendasi',
         status: 'error',
         isClosable: true,
       });
@@ -110,7 +110,7 @@ export default function ProductRecommendationModal({
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
       toast({
-        title: 'Error',
+        title: 'Gagal',
         description: err.response?.data?.detail || 'Gagal memilih produk',
         status: 'error',
         isClosable: true,
@@ -123,7 +123,7 @@ export default function ProductRecommendationModal({
   const handleClose = () => {
     setHarvestVolume('');
     setFinalColor('dark_brown');
-    setAromaIntensity('medium');
+    setAromaProfile('sweet');
     setUserIntent('household');
     setRecommendations(null);
     setSelectedProductId(null);
@@ -167,11 +167,13 @@ export default function ProductRecommendationModal({
               </FormControl>
 
               <FormControl>
-                <FormLabel htmlFor="aroma-intensity" color="gray.300">Intensitas Aroma</FormLabel>
-                <Select id="aroma-intensity" name="aromaIntensity" value={aromaIntensity} onChange={(e) => setAromaIntensity(e.target.value)} bg="gray.700" borderColor="gray.600" color="gray.100">
-                  <option value="mild" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Ringan</option>
-                  <option value="medium" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Sedang</option>
-                  <option value="strong" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Kuat</option>
+                <FormLabel htmlFor="aroma-profile" color="gray.300">Profil Aroma Hasil Fermentasi</FormLabel>
+                <Select id="aroma-profile" name="aromaProfile" value={aromaProfile} onChange={(e) => setAromaProfile(e.target.value)} bg="gray.700" borderColor="gray.600" color="gray.100">
+                  <option value="sweet" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Manis/Fruity</option>
+                  <option value="sour" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Asam</option>
+                  <option value="fruity" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Buah-buahan</option>
+                  <option value="tangy" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Asam Segar</option>
+                  <option value="neutral" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Netral</option>
                 </Select>
               </FormControl>
 

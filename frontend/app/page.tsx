@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import {
@@ -10,11 +11,14 @@ import {
   FiArrowRight,
   FiGithub,
   FiActivity,
+  FiMenu,
+  FiX,
 } from 'react-icons/fi';
 import { LuBot, LuLightbulb } from 'react-icons/lu';
 
 export default function Home() {
   const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const targetHref = user ? '/dashboard' : '/login';
   const joinLabel = user ? 'Buka Dasbor' : 'Mulai Sekarang';
 
@@ -52,7 +56,7 @@ export default function Home() {
   ];
 
   const steps = [
-    { num: '1', title: 'Buat Batch', desc: 'Input berat sampah organik. Sistem otomatis hitung kebutuhan air (3x) & gula (1x).' },
+    { num: '1', title: 'Buat Batch', desc: 'Input berat sampah organik. Sistem otomatis hitung kebutuhan gula (rasio 1) & air (rasio 10) sesuai formula 1:3:10.' },
     { num: '2', title: 'Monitor Fermentasi', desc: 'Catat observasi harian. AI memprediksi status & kesehatan batch dari aroma, warna, dan gas.' },
     { num: '3', title: 'Rekomendasi Produk', desc: 'Setelah panen 90 hari, AI merekomendasikan produk turunan terbaik berdasarkan karakteristik hasil.' },
     { num: '4', title: 'Analisis Kelayakan', desc: 'Sistem menghitung COGS, margin, break-even point, dan proyeksi profit bisnis.' }
@@ -103,18 +107,64 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <Link
               href={targetHref}
-              className="text-sm font-semibold text-stone-700 transition-colors hover:text-emerald-800"
+              className="hidden md:block text-sm font-semibold text-stone-700 transition-colors hover:text-emerald-800"
             >
               {user ? 'Dasbor' : 'Masuk'}
             </Link>
             <Link
               href={targetHref}
-              className="rounded-full bg-emerald-700 px-5 py-2.5 text-sm font-bold text-amber-50 shadow-lg shadow-emerald-800/30 transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-700/40"
+              className="hidden md:block rounded-full bg-emerald-700 px-5 py-2.5 text-sm font-bold text-amber-50 shadow-lg shadow-emerald-800/30 transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-700/40"
             >
               {joinLabel}
             </Link>
+            <button
+              className="md:hidden inline-flex items-center justify-center p-2 text-stone-600 hover:text-emerald-700"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
+            </button>
           </div>
         </nav>
+
+        {/* MOBILE MENU */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-stone-200/60 bg-[#FDFBF7]/95 px-4 pb-6 pt-4 backdrop-blur-md shadow-lg">
+            <div className="space-y-4">
+              {[
+                { label: 'Fitur', href: '#fitur' },
+                { label: 'Cara Kerja', href: '#cara-kerja' },
+                { label: 'GitHub', href: 'https://github.com/GomalRajaGula/EcoFlow-AI', external: true },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target={item.external ? '_blank' : undefined}
+                  rel={item.external ? 'noreferrer' : undefined}
+                  className="block text-base font-medium text-stone-700 hover:text-emerald-700"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ))}
+              <div className="mt-6 border-t border-stone-200/60 pt-6 flex flex-col gap-3">
+                <Link
+                  href={targetHref}
+                  className="flex w-full items-center justify-center rounded-lg border border-stone-300 bg-white py-2.5 text-sm font-semibold text-stone-700 shadow-sm hover:bg-stone-50"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {user ? 'Dasbor' : 'Masuk'}
+                </Link>
+                <Link
+                  href={targetHref}
+                  className="flex w-full items-center justify-center rounded-lg bg-emerald-700 py-2.5 text-sm font-bold text-amber-50 shadow-md hover:bg-emerald-600"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {joinLabel}
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* HERO SECTION */}
@@ -199,7 +249,7 @@ export default function Home() {
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="text-sm font-medium text-stone-600">Batch: Sampah Dapur — Juli</p>
-                    <p className="mt-1 text-xs text-stone-500">AI Status: <span className="font-semibold text-emerald-700">Sehat</span> · Skor Kesehatan 90.3</p>
+                    <p className="mt-1 text-xs text-stone-500">Status AI: <span className="font-semibold text-emerald-700">Sehat</span> · Skor Kesehatan 90.3</p>
                   </div>
                   <p className="text-sm font-bold text-stone-800">Hari 45 dari 90</p>
                 </div>
@@ -211,8 +261,8 @@ export default function Home() {
               <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
                 {[
                   { label: 'Bahan Baku', value: '3.0 kg' },
-                  { label: 'Kebutuhan Air', value: '30.0 L' },
-                  { label: 'Gula', value: '10.0 kg' },
+                  { label: 'Gula Molase', value: '1.0 kg' },
+                  { label: 'Kebutuhan Air', value: '10.0 L' },
                 ].map((stat) => (
                   <div key={stat.label} className="rounded-xl border border-stone-200 bg-stone-50/50 p-3 sm:p-4">
                     <p className="text-[11px] font-medium text-stone-500 sm:text-xs">{stat.label}</p>
@@ -369,7 +419,7 @@ export default function Home() {
 
           <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-stone-200 pt-8 text-sm text-stone-500 md:flex-row">
             <p>© {new Date().getFullYear()} EcoFlow AI. Hak Cipta Dilindungi.</p>
-            <p>Smart Eco-Enzyme Assistant v0.1.0</p>
+            <p>Asisten Cerdas Fermentasi Eco-Enzyme v0.1.0</p>
           </div>
         </div>
       </footer>

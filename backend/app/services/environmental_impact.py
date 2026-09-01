@@ -1,44 +1,52 @@
-class EnvironmentalImpactService:
-    """Perhitungan dampak lingkungan dari pengalihan sampah organik."""
+from sqlalchemy.orm import Session
+from app.models.base import FermentationBatch, User
 
-    CO2_PER_KG_WASTE = 1.9
-    METHANE_PER_KG_WASTE = 0.06
-    WATER_SAVED_PER_KG = 5.0
-    EQUIVALENT_TREES_PER_TON_CO2 = 45
+class EnvironmentalImpactService:
+    """
+    Perhitungan dampak lingkungan dari pengalihan sampah organik.
+    Faktor konversi:
+    - CO2 Reduction: 0.5 kg CO2 per kg sampah (fermentasi vs landfill)
+    - Water Saved: 2 liter per kg sampah (fermentasi vs TPA)
+    - Trees Equivalent: 1 pohon menyerap ~21.77 kg CO2/tahun
+    """
+
+    CO2_PER_KG_WASTE = 0.5
+    WATER_SAVED_PER_KG = 2.0
+    CO2_PER_TREE = 21.77
 
     @classmethod
-    def calculate_batch_impact(cls, waste_weight_kg: float) -> dict:
-        """Hitung dampak lingkungan untuk satu batch.
-
-        Args:
-            waste_weight_kg: Berat sampah yang dialihkan (kg).
-
-        Returns:
-            dict: {"co2_avoided_kg", "methane_avoided_kg",
-                   "water_saved_liters", "equivalent_trees_planted"}.
+    def calculate_user_impact(cls, db: Session, user_id: int) -> dict:
         """
-        co2_avoided = waste_weight_kg * cls.CO2_PER_KG_WASTE
-        methane_avoided = waste_weight_kg * cls.METHANE_PER_KG_WASTE
-        water_saved = waste_weight_kg * cls.WATER_SAVED_PER_KG
-        tree_equivalents = (co2_avoided / 1000) * cls.EQUIVALENT_TREES_PER_TON_CO2
+        Hitung dampak agregat untuk seorang user dari batch yang completed/harvested.
+        """
+        completed_batches = db.query(FermentationBatch).filter(
+            FermentationBatch.user_id == user_id,
+            FermentationBatch.status.in_(["completed", "harvested"])
+        ).all()
+
+        total_waste_kg = sum((batch.waste_weight_kg or 0.0) for batch in completed_batches)
+        co2_avoided = total_waste_kg * cls.CO2_PER_KG_WASTE
+        water_saved = total_waste_kg * cls.WATER_SAVED_PER_KG
+        tree_equivalents = co2_avoided / cls.CO2_PER_TREE
 
         return {
-            "co2_avoided_kg": co2_avoided,
-            "methane_avoided_kg": methane_avoided,
-            "water_saved_liters": water_saved,
-            "equivalent_trees_planted": tree_equivalents,
+            "limbah_teralihkan_kg": total_waste_kg,
+            "co2_dikurangi_kg": co2_avoided,
+            "air_terselamatkan_liter": water_saved,
+            "setara_pohon": tree_equivalents,
         }
 
     @classmethod
-    def calculate_user_impact(cls, total_waste_kg: float, total_batches: int) -> dict:
-        """Hitung dampak agregat untuk seorang user (semua batch)."""
-        impact = cls.calculate_batch_impact(total_waste_kg)
-        impact["total_batches"] = total_batches
-        impact["total_waste_diverted_kg"] = total_waste_kg
-        return impact
+    def calculate_batch_impact(cls, waste_weight_kg: float) -> dict:
+        """Hitung dampak lingkungan untuk satu batch."""
+        co2_avoided = waste_weight_kg * cls.CO2_PER_KG_WASTE
+        water_saved = waste_weight_kg * cls.WATER_SAVED_PER_KG
+        tree_equivalents = co2_avoided / cls.CO2_PER_TREE
 
-    @classmethod
-    def calculate_impact_summary(cls, batches: list) -> dict:
-        """Aggregate dampak dari list object batch (memakai waste_weight_kg)."""
-        total_waste_kg = sum(batch.waste_weight_kg for batch in batches if hasattr(batch, 'waste_weight_kg') and batch.waste_weight_kg)
-        return cls.calculate_user_impact(total_waste_kg, len(batches))
+        return {
+            "limbah_teralihkan_kg": waste_weight_kg,
+            "co2_dikurangi_kg": co2_avoided,
+            "air_terselamatkan_liter": water_saved,
+            "setara_pohon": tree_equivalents,
+        }
+

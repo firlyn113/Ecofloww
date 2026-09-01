@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useBatches, type Batch } from '@/lib/batches-context';
@@ -8,8 +8,23 @@ import apiClient from '@/lib/api';
 import CreateBatchModal from '@/src/components/features/CreateBatchModal';
 import { differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
-import { FiBox, FiCalendar, FiDroplet, FiPlus, FiThermometer, FiTrendingUp } from 'react-icons/fi';
+import { FiBox, FiCalendar, FiDroplet, FiPlus, FiThermometer, FiTrendingUp, FiTrash2, FiMoreVertical, FiSearch, FiFilter, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { LuCpu } from 'react-icons/lu';
+import {
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
+  useToast,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  Button
+} from '@chakra-ui/react';
 
 interface BatchAnalysis {
   batch: Batch;
@@ -41,14 +56,21 @@ function formatDate(value: string | null): string {
 }
 
 function BatchStatusBadge({ status }: { status: string }) {
-  const completed = status === 'harvested';
+  const statusMap: Record<string, { label: string; color: string }> = {
+    pending_start: { label: 'MENUNGGU', color: 'bg-yellow-100 text-yellow-700' },
+    in_progress: { label: 'AKTIF', color: 'bg-emerald-100 text-emerald-700' },
+    completed: { label: 'SELESAI', color: 'bg-blue-100 text-blue-700' },
+    harvested: { label: 'DIPANEN', color: 'bg-slate-100 text-slate-600' },
+    failed: { label: 'GAGAL', color: 'bg-red-100 text-red-700' },
+    paused: { label: 'DIJEDA', color: 'bg-orange-100 text-orange-700' },
+  };
+  const current = statusMap[status] || { label: status.toUpperCase(), color: 'bg-slate-100 text-slate-700' };
+
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ${
-        completed ? 'bg-slate-100 text-slate-600' : 'bg-emerald-100 text-emerald-700'
-      }`}
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ${current.color}`}
     >
-      {completed ? 'SELESAI' : 'SEDANG DIPROSES'}
+      {current.label}
     </span>
   );
 }
@@ -77,7 +99,35 @@ function BatchProgress({ startDate }: { startDate: string }) {
   );
 }
 
-function BatchCard({ batch, isCompleted }: { batch: Batch; isCompleted?: boolean }) {
+function BatchCard({
+  batch,
+  isCompleted,
+  onDelete,
+  onStatusChange
+}: {
+  batch: Batch;
+  isCompleted?: boolean;
+  onDelete: (batch: Batch) => void;
+  onStatusChange: (batch: Batch, newStatus: string) => void;
+}) {
+  const getAvailableStatuses = (currentStatus: string) => {
+    switch (currentStatus) {
+      case 'pending_start': return ['in_progress'];
+      case 'in_progress': return ['completed', 'failed', 'paused'];
+      case 'paused': return ['in_progress', 'failed'];
+      case 'completed': return ['harvested'];
+      default: return [];
+    }
+  };
+  const availableStatuses = getAvailableStatuses(batch.status);
+  const statusLabels: Record<string, string> = {
+    in_progress: 'Aktif',
+    completed: 'Selesai',
+    harvested: 'Dipanen',
+    failed: 'Gagal',
+    paused: 'Dijeda'
+  };
+
   return (
     <div className="flex flex-col rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -85,7 +135,23 @@ function BatchCard({ batch, isCompleted }: { batch: Batch; isCompleted?: boolean
           <h3 className="text-base font-extrabold text-slate-800">{batch.name}</h3>
           <p className="mt-0.5 text-xs text-slate-400">Batch #{batch.id}</p>
         </div>
-        <BatchStatusBadge status={batch.status} />
+        <div className="flex items-center gap-2">
+          <BatchStatusBadge status={batch.status} />
+          
+          <Menu>
+            <MenuButton as={IconButton} aria-label="Options" icon={<FiMoreVertical />} variant="ghost" size="sm" />
+            <MenuList zIndex={10}>
+              {availableStatuses.map(status => (
+                <MenuItem key={status} onClick={() => onStatusChange(batch, status)}>
+                  Ubah ke {statusLabels[status]}
+                </MenuItem>
+              ))}
+              <MenuItem color="red.500" onClick={() => onDelete(batch)}>
+                Hapus Batch
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </div>
       </div>
 
       <div className="flex-1">
@@ -269,7 +335,16 @@ function AnalysisTab({ batches, onRefresh }: { batches: Batch[]; onRefresh: () =
 function BatchesContent() {
   const { batches, loading, refresh: refreshBatches } = useBatches();
   const searchParams = useSearchParams();
+  const toast = useToast();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('Semua');
+  const [page, setPage] = useState(1);
+  const [batchToDelete, setBatchToDelete] = useState<Batch | null>(null);
+  
+  const itemsPerPage = 10;
 
   const tabParam = searchParams.get('tab');
   const activeTab: TabKey = TABS.some((t) => t.key === tabParam)
@@ -277,13 +352,76 @@ function BatchesContent() {
     : 'all';
 
   const filtered = batches.filter((batch) => {
-    if (activeTab === 'active') return batch.status !== 'harvested';
-    if (activeTab === 'completed') return batch.status === 'harvested';
+    if (activeTab === 'active' && batch.status === 'harvested') return false;
+    if (activeTab === 'completed' && batch.status !== 'harvested') return false;
+    
+    if (searchQuery && !batch.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    
+    if (statusFilter !== 'Semua') {
+      const statusMap: Record<string, string> = {
+        'Menunggu': 'pending_start',
+        'Aktif': 'in_progress',
+        'Selesai': 'completed',
+        'Dipanen': 'harvested',
+        'Gagal': 'failed',
+        'Dijeda': 'paused'
+      };
+      if (batch.status !== statusMap[statusFilter]) return false;
+    }
     return true;
   });
 
-  const showEmptyState =
-    !loading && batches.length === 0 && activeTab !== 'analisis';
+  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+  const paginated = filtered.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  const handleDelete = async () => {
+    if (!batchToDelete) return;
+    try {
+      await apiClient.delete(`/api/v1/batches/${batchToDelete.id}`);
+      toast({
+        title: 'Berhasil dihapus',
+        description: `Batch ${batchToDelete.name} telah dihapus.`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      refreshBatches();
+    } catch (error) {
+      toast({
+        title: 'Gagal menghapus',
+        description: 'Terjadi kesalahan saat menghapus batch.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setBatchToDelete(null);
+    }
+  };
+
+  const handleStatusChange = async (batch: Batch, newStatus: string) => {
+    try {
+      await apiClient.put(`/api/v1/batches/${batch.id}/status`, { new_status: newStatus });
+      toast({
+        title: 'Status diperbarui',
+        description: `Status batch ${batch.name} berhasil diubah.`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      refreshBatches();
+    } catch (error) {
+      toast({
+        title: 'Gagal memperbarui',
+        description: 'Terjadi kesalahan saat mengubah status.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const showEmptyState = !loading && batches.length === 0 && activeTab !== 'analisis';
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -306,29 +444,61 @@ function BatchesContent() {
         </button>
       </div>
 
-      <div
-        role="tablist"
-        aria-label="Filter batch"
-        className="mt-6 flex flex-wrap gap-2 rounded-2xl border border-emerald-100 bg-white/70 p-1.5 backdrop-blur sm:w-fit"
-      >
-        {TABS.map((tab) => {
-          const selected = activeTab === tab.key;
-          return (
-            <Link
-              key={tab.key}
-              href={tab.key === 'all' ? '/dashboard/batches' : `/dashboard/batches?tab=${tab.key}`}
-              role="tab"
-              aria-selected={selected}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-                selected
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/25'
-                  : 'text-slate-500 hover:bg-emerald-50 hover:text-emerald-700'
-              }`}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          role="tablist"
+          aria-label="Filter batch"
+          className="flex flex-wrap gap-2 rounded-2xl border border-emerald-100 bg-white/70 p-1.5 backdrop-blur sm:w-fit"
+        >
+          {TABS.map((tab) => {
+            const selected = activeTab === tab.key;
+            return (
+              <Link
+                key={tab.key}
+                href={tab.key === 'all' ? '/dashboard/batches' : `/dashboard/batches?tab=${tab.key}`}
+                role="tab"
+                aria-selected={selected}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+                  selected
+                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/25'
+                    : 'text-slate-500 hover:bg-emerald-50 hover:text-emerald-700'
+                }`}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+        </div>
+
+        {activeTab !== 'analisis' && (
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari nama batch..."
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+                className="h-10 w-full min-w-[200px] rounded-xl border border-slate-200 bg-white pl-9 pr-4 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+              />
+            </div>
+            
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                className="h-10 cursor-pointer appearance-none rounded-xl border border-slate-200 bg-white pl-4 pr-10 text-sm font-medium text-slate-600 outline-none transition-all hover:border-emerald-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+              >
+                {['Semua', 'Menunggu', 'Aktif', 'Selesai', 'Dipanen', 'Gagal', 'Dijeda'].map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <FiFilter className="h-4 w-4" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -348,19 +518,48 @@ function BatchesContent() {
           <EmptyState onCreate={() => setShowCreateModal(true)} />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="mt-6">
-          <EmptyState onCreate={() => setShowCreateModal(true)} />
+        <div className="mt-6 flex flex-col items-center justify-center rounded-2xl border border-dashed border-emerald-200 bg-white/60 px-6 py-16 text-center">
+          <h3 className="text-lg font-extrabold text-slate-800">Tidak ada batch yang cocok</h3>
+          <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-500">Coba ubah kata kunci atau filter status.</p>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((batch) => (
-            <BatchCard
-              key={batch.id}
-              batch={batch}
-              isCompleted={activeTab === 'completed'}
-            />
-          ))}
-        </div>
+        <>
+          <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {paginated.map((batch) => (
+              <BatchCard
+                key={batch.id}
+                batch={batch}
+                isCompleted={activeTab === 'completed'}
+                onDelete={(b) => setBatchToDelete(b)}
+                onStatusChange={handleStatusChange}
+              />
+            ))}
+          </div>
+
+          <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-6">
+            <p className="text-sm text-slate-500">
+              Menampilkan <span className="font-bold text-slate-700">{filtered.length > 0 ? (page - 1) * itemsPerPage + 1 : 0}</span> hingga{' '}
+              <span className="font-bold text-slate-700">{Math.min(page * itemsPerPage, filtered.length)}</span> dari{' '}
+              <span className="font-bold text-slate-700">{filtered.length}</span> batch
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <FiChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages || totalPages === 0}
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <FiChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       <CreateBatchModal
@@ -371,6 +570,33 @@ function BatchesContent() {
           refreshBatches();
         }}
       />
+      
+      <AlertDialog
+        isOpen={!!batchToDelete}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setBatchToDelete(null)}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Hapus Batch
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Apakah Anda yakin ingin menghapus batch &apos;{batchToDelete?.name}&apos;? Semua catatan fermentasi terkait juga akan dihapus. Aksi ini tidak dapat dibatalkan.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={() => setBatchToDelete(null)}>
+                Batal
+              </Button>
+              <Button colorScheme="red" onClick={handleDelete} ml={3}>
+                Hapus
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </div>
   );
 }

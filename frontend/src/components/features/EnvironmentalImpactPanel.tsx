@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { Box, Card, CardBody, Heading, Text, Grid, Icon, Progress, VStack, HStack, Badge } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+import { Box, Card, CardBody, Heading, Text, Grid, Icon, Progress, VStack, HStack, Badge, Center, Spinner } from '@chakra-ui/react';
 import { FiTrendingUp, FiDroplet, FiWind, FiLeaf } from 'react-icons/fi';
+import apiClient from '@/lib/api';
 
-interface EnvironmentalMetrics {
-  totalWasteDiverted: number;
-  totalCO2Avoided: number;
-  waterSaved: number;
-  treesEquivalent: number;
-  monthlyGrowth: number;
+interface ImpactData {
+  limbah_teralihkan_kg: number;
+  co2_dikurangi_kg: number;
+  air_terselamatkan_liter: number;
+  setara_pohon: number;
 }
 
 interface ImpactCardProps {
@@ -48,7 +48,7 @@ const ImpactCard = ({ icon, label, value, unit, color, progress, target }: Impac
         <Box>
           <HStack justify="space-between" mb={2}>
             <Text fontSize="xs" color="stone.500">
-              Progress
+              Progres
             </Text>
             <Text fontSize="xs" color="stone.500">
               Target: {target}
@@ -61,18 +61,46 @@ const ImpactCard = ({ icon, label, value, unit, color, progress, target }: Impac
   </Card>
 );
 
-export default function EnvironmentalImpactPanel({ totalWasteDiverted = 0 }: { totalWasteDiverted?: number }) {
-  const co2ConversionFactor = 1.9;
-  const waterConversionFactor = 3;
-  const treeEquivalentFactor = 0.02;
+export default function EnvironmentalImpactPanel() {
+  const [data, setData] = useState<ImpactData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const metrics: EnvironmentalMetrics = {
-    totalWasteDiverted,
-    totalCO2Avoided: totalWasteDiverted * co2ConversionFactor,
-    waterSaved: totalWasteDiverted * waterConversionFactor,
-    treesEquivalent: totalWasteDiverted * treeEquivalentFactor,
-    monthlyGrowth: 24,
+  useEffect(() => {
+    let cancelled = false;
+    apiClient
+      .get('/api/v1/impact/user')
+      .then((response) => {
+        if (!cancelled) {
+          setData(response.data.data);
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <Center py={10}>
+        <Spinner color="emerald.500" />
+      </Center>
+    );
+  }
+
+  const impactData = data || {
+    limbah_teralihkan_kg: 0,
+    co2_dikurangi_kg: 0,
+    air_terselamatkan_liter: 0,
+    setara_pohon: 0,
   };
+
+  const formatNumber = (num: number) => num.toLocaleString('id-ID', { maximumFractionDigits: 1 });
 
   return (
     <Box>
@@ -98,8 +126,8 @@ export default function EnvironmentalImpactPanel({ totalWasteDiverted = 0 }: { t
         <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={4}>
           <ImpactCard
             icon={FiTrendingUp}
-            label="Sampah Organik Diolah"
-            value={metrics.totalWasteDiverted.toFixed(1)}
+            label="Limbah Teralihkan"
+            value={formatNumber(impactData.limbah_teralihkan_kg)}
             unit="kg"
             color="emerald.600"
             progress={65}
@@ -107,8 +135,8 @@ export default function EnvironmentalImpactPanel({ totalWasteDiverted = 0 }: { t
           />
           <ImpactCard
             icon={FiWind}
-            label="CO₂ yang Dihindari"
-            value={metrics.totalCO2Avoided.toFixed(1)}
+            label="CO₂ Dikurangi"
+            value={formatNumber(impactData.co2_dikurangi_kg)}
             unit="kg"
             color="blue.500"
             progress={58}
@@ -117,7 +145,7 @@ export default function EnvironmentalImpactPanel({ totalWasteDiverted = 0 }: { t
           <ImpactCard
             icon={FiDroplet}
             label="Air Bersih Terselamatkan"
-            value={metrics.waterSaved.toFixed(1)}
+            value={formatNumber(impactData.air_terselamatkan_liter)}
             unit="L"
             color="cyan.500"
             progress={72}
@@ -125,8 +153,8 @@ export default function EnvironmentalImpactPanel({ totalWasteDiverted = 0 }: { t
           />
           <ImpactCard
             icon={FiLeaf}
-            label="Setara Menanam Pohon"
-            value={metrics.treesEquivalent.toFixed(1)}
+            label="Setara Pohon"
+            value={formatNumber(impactData.setara_pohon)}
             unit="pohon"
             color="green.600"
             progress={45}
@@ -141,12 +169,12 @@ export default function EnvironmentalImpactPanel({ totalWasteDiverted = 0 }: { t
               <Icon as={FiLeaf} boxSize={6} color="amber.700" />
               <VStack align="start" spacing={1}>
                 <Text fontSize="sm" fontWeight="bold" color="stone.900">
-                  🌱 Dampak Positif Anda
+                  🌱 Ringkasan Dampak Anda
                 </Text>
                 <Text fontSize="sm" color="stone.700">
-                  Dengan mengolah {metrics.totalWasteDiverted.toFixed(1)} kg sampah organik, Anda telah mencegah{' '}
-                  <strong>{metrics.totalCO2Avoided.toFixed(1)} kg CO₂</strong> masuk ke atmosfer—setara dengan dampak{' '}
-                  <strong>{metrics.treesEquivalent.toFixed(1)} pohon</strong> yang menyerap karbon selama setahun!
+                  Dengan mengolah {formatNumber(impactData.limbah_teralihkan_kg)} kg sampah organik, Anda telah mencegah{' '}
+                  <strong>{formatNumber(impactData.co2_dikurangi_kg)} kg CO₂</strong> masuk ke atmosfer—setara dengan dampak{' '}
+                  <strong>{formatNumber(impactData.setara_pohon)} pohon</strong> yang menyerap karbon selama setahun!
                 </Text>
               </VStack>
             </HStack>

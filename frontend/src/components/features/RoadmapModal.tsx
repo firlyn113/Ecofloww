@@ -123,8 +123,8 @@ export default function RoadmapModal({
             if (showCachedIfOffline()) return;
             if (isMounted) {
               toast({
-                title: 'Error',
-                description: err.response?.data?.detail || 'Failed to load roadmap',
+                title: 'Gagal',
+                description: err.response?.data?.detail || 'Gagal memuat data roadmap',
                 status: 'error',
                 isClosable: true,
               });
@@ -200,8 +200,8 @@ export default function RoadmapModal({
       setRoadmap(response.data.data);
       cacheRoadmap(batchId, productTemplateId, response.data.data);
       toast({
-        title: 'Success',
-        description: `Step ${completed ? 'completed' : 'uncompleted'}`,
+        title: 'Berhasil',
+        description: `Langkah ${completed ? 'selesai' : 'dibatalkan'}`,
         status: 'success',
         isClosable: true,
         duration: 2000,
@@ -211,8 +211,8 @@ export default function RoadmapModal({
       setRoadmap(roadmap);
       const err = error as { response?: { data?: { detail?: string } } };
       toast({
-        title: 'Error',
-        description: err.response?.data?.detail || 'Failed to update step',
+        title: 'Gagal',
+        description: err.response?.data?.detail || 'Gagal memperbarui langkah',
         status: 'error',
         isClosable: true,
       });
@@ -237,6 +237,19 @@ export default function RoadmapModal({
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'Selesai';
+      case 'in_progress':
+        return 'Sedang Berjalan';
+      case 'not_started':
+        return 'Belum Dimulai';
+      default:
+        return 'Memuat...';
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
@@ -245,21 +258,21 @@ export default function RoadmapModal({
           <HStack justifyContent="space-between">
             <Text>Roadmap Pemrosesan</Text>
             <Badge colorScheme={getStatusColor(roadmap?.status || 'not_started')}>
-              {roadmap?.status || 'Loading'}
+              {getStatusLabel(roadmap?.status || '')}
             </Badge>
           </HStack>
         </ModalHeader>
         <ModalCloseButton aria-label="Tutup dialog roadmap" />
         <ModalBody>
           {loading ? (
-            <Text>Loading roadmap...</Text>
+            <Text>Memuat roadmap...</Text>
           ) : roadmap ? (
             <Stack spacing={6}>
               <Box>
                 <HStack justifyContent="space-between" mb={2}>
                   <Text fontWeight="bold">Progres</Text>
                   <Text fontSize="sm" color="gray.600">
-                    {roadmap.completed_steps} / {roadmap.total_steps} steps
+                    {roadmap.completed_steps} / {roadmap.total_steps} langkah
                   </Text>
                 </HStack>
                 <Progress
@@ -268,7 +281,7 @@ export default function RoadmapModal({
                   borderRadius="md"
                 />
                 <Text fontSize="xs" color="gray.500" mt={1}>
-                  {roadmap.progress_percentage.toFixed(0)}% complete
+                  {roadmap.progress_percentage.toFixed(0)}% selesai
                 </Text>
               </Box>
 
@@ -310,16 +323,16 @@ export default function RoadmapModal({
               {roadmap.status === 'completed' && (
                 <Box borderWidth="1px" borderRadius="md" p={4} bg="green.50" borderColor="green.200">
                   <Text fontWeight="bold" color="green.700" mb={2}>
-                    Roadmap Completed!
+                    Roadmap Selesai!
                   </Text>
                   <Text fontSize="sm" color="green.600">
-                    All steps have been completed. You&apos;re ready to proceed with your product!
+                    Semua langkah telah selesai. Produk Anda siap digunakan atau dipasarkan!
                   </Text>
                 </Box>
               )}
             </Stack>
           ) : (
-            <Text>Unable to load roadmap</Text>
+            <Text>Tidak dapat memuat roadmap</Text>
           )}
         </ModalBody>
 
@@ -344,7 +357,7 @@ export default function RoadmapModal({
               }}
               _hover={{ bg: '#2a8a42' }}
             >
-              Done
+              Selesai
             </Button>
           )}
         </ModalFooter>

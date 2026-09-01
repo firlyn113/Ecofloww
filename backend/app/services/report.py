@@ -119,16 +119,16 @@ class ReportService:
         y = height - 50
 
         pdf.setFont("Helvetica-Bold", 16)
-        pdf.drawString(50, y, "Processing Roadmap Checklist")
+        pdf.drawString(50, y, "Checklist Roadmap Pemrosesan")
         y -= 24
         pdf.setFont("Helvetica", 10)
-        pdf.drawString(50, y, f"Batch ID: {batch_id}")
+        pdf.drawString(50, y, f"ID Batch: {batch_id}")
         y -= 20
-        pdf.drawString(50, y, f"Product: {roadmap_data.get('template_name', 'Eco-Enzyme Product')}")
+        pdf.drawString(50, y, f"Produk: {roadmap_data.get('template_name', 'Produk Eco-Enzyme')}")
         y -= 28
 
         pdf.setFont("Helvetica-Bold", 12)
-        pdf.drawString(50, y, "Steps")
+        pdf.drawString(50, y, "Langkah-Langkah")
         pdf.setFont("Helvetica", 10)
         for index, step in enumerate(roadmap_data.get("steps", []), start=1):
             y -= 20
@@ -148,10 +148,10 @@ class ReportService:
             pdf.showPage()
             y = height - 50
         pdf.setFont("Helvetica-Bold", 10)
-        pdf.drawString(50, y, "Safety warnings")
+        pdf.drawString(50, y, "Peringatan Keselamatan")
         pdf.setFont("Helvetica", 10)
         y -= 16
-        pdf.drawString(50, y, str(roadmap_data.get("safety_warnings", "Follow safe handling practices."))[:130])
+        pdf.drawString(50, y, str(roadmap_data.get("safety_warnings", "Ikuti petunjuk penanganan yang aman."))[:130])
 
         tutorial_url = roadmap_data.get("tutorial_url")
         if tutorial_url:
@@ -160,7 +160,7 @@ class ReportService:
                 pdf.showPage()
                 y = height - 50
             pdf.setFont("Helvetica-Bold", 10)
-            pdf.drawString(50, y, "Tutorial Link")
+            pdf.drawString(50, y, "Tautan Tutorial")
             pdf.setFont("Helvetica", 9)
             y -= 16
             pdf.drawString(50, y, str(tutorial_url)[:100])
@@ -196,21 +196,21 @@ class ReportService:
         timestamp = datetime.now(timezone.utc).isoformat()
         
         return {
-            "title": "Commercialization Roadmap Report",
+            "title": "Laporan Roadmap Komersialisasi",
             "batch_id": batch_id,
             "generated_at": timestamp,
-            "summary": "This roadmap provides a step-by-step guide to transforming your eco-enzyme into a commercial product.",
+            "summary": "Roadmap ini menyediakan panduan langkah demi langkah untuk mengolah eco-enzyme menjadi produk bernilai.",
             "sections": [
                 {
-                    "title": "Product Strategy",
+                    "title": "Strategi Produk",
                     "content": roadmap_data.get("strategy", {})
                 },
                 {
-                    "title": "Action Plan",
+                    "title": "Rencana Aksi",
                     "content": roadmap_data.get("steps", [])
                 },
                 {
-                    "title": "Milestones & Timeline",
+                    "title": "Milestone & Lini Masa",
                     "content": roadmap_data.get("milestones", {})
                 }
             ],

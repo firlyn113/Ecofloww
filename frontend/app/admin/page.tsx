@@ -315,10 +315,10 @@ export default function AdminPage() {
       <Stack spacing={8}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Heading size="lg" color="#34A853">
-            Admin Dashboard
+            Dasbor Admin
           </Heading>
           <Button variant="outline" onClick={() => router.push('/dashboard')}>
-            Back to Dashboard
+            Kembali ke Dasbor
           </Button>
         </Box>
 
@@ -347,15 +347,15 @@ export default function AdminPage() {
         {stats && (
           <Box>
             <Heading size="md" mb={4}>
-              Community Statistics
+              Statistik Komunitas
             </Heading>
             <Grid templateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap={4}>
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Total Users</StatLabel>
+                    <StatLabel>Total Pengguna</StatLabel>
                     <StatNumber color="#34A853">{stats.total_users}</StatNumber>
-                    <StatHelpText>Active community members</StatHelpText>
+                    <StatHelpText>Anggota komunitas aktif</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -363,9 +363,9 @@ export default function AdminPage() {
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Total Batches</StatLabel>
+                    <StatLabel>Total Batch</StatLabel>
                     <StatNumber color="#34A853">{stats.total_batches}</StatNumber>
-                    <StatHelpText>Fermentation batches created</StatHelpText>
+                    <StatHelpText>Batch fermentasi dibuat</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -373,9 +373,9 @@ export default function AdminPage() {
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Waste Processed</StatLabel>
+                    <StatLabel>Limbah Diproses</StatLabel>
                     <StatNumber color="#34A853">{stats.total_waste_processed_kg.toFixed(2)}</StatNumber>
-                    <StatHelpText>kg of organic waste</StatHelpText>
+                    <StatHelpText>kg limbah organik</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -383,11 +383,11 @@ export default function AdminPage() {
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Success Rate</StatLabel>
+                    <StatLabel>Tingkat Keberhasilan</StatLabel>
                     <StatNumber color={stats.success_rate_percentage >= 80 ? '#34A853' : '#ED8936'}>
                       {stats.success_rate_percentage.toFixed(1)}%
                     </StatNumber>
-                    <StatHelpText>Fermentation success</StatHelpText>
+                    <StatHelpText>Keberhasilan fermentasi</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -395,9 +395,9 @@ export default function AdminPage() {
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Normal Logs</StatLabel>
+                    <StatLabel>Catatan Normal</StatLabel>
                     <StatNumber color="green.600">{stats.normal_logs}</StatNumber>
-                    <StatHelpText>Healthy fermentations</StatHelpText>
+                    <StatHelpText>Fermentasi sehat</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -405,9 +405,9 @@ export default function AdminPage() {
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Failed Logs</StatLabel>
+                    <StatLabel>Catatan Gagal</StatLabel>
                     <StatNumber color="red.600">{stats.failed_logs}</StatNumber>
-                    <StatHelpText>Issues detected</StatHelpText>
+                    <StatHelpText>Masalah terdeteksi</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -594,15 +594,15 @@ export default function AdminPage() {
         {metrics && (
           <Box>
             <Heading size="md" mb={4}>
-              AI Model Metrics
+              Metrik Model AI
             </Heading>
             <Grid templateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap={4}>
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Precision</StatLabel>
+                    <StatLabel>Presisi</StatLabel>
                     <StatNumber color="#34A853">{(metrics.precision * 100).toFixed(1)}%</StatNumber>
-                    <StatHelpText>Model accuracy</StatHelpText>
+                    <StatHelpText>Akurasi model</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -612,7 +612,7 @@ export default function AdminPage() {
                   <Stat>
                     <StatLabel>Recall</StatLabel>
                     <StatNumber color="#34A853">{(metrics.recall * 100).toFixed(1)}%</StatNumber>
-                    <StatHelpText>Detection sensitivity</StatHelpText>
+                    <StatHelpText>Sensitivitas deteksi</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -620,9 +620,9 @@ export default function AdminPage() {
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>F1 Score</StatLabel>
+                    <StatLabel>Skor F1</StatLabel>
                     <StatNumber color="#34A853">{(metrics.f1_score * 100).toFixed(1)}%</StatNumber>
-                    <StatHelpText>Overall performance</StatHelpText>
+                    <StatHelpText>Performa keseluruhan</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -630,9 +630,9 @@ export default function AdminPage() {
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Total Predictions</StatLabel>
+                    <StatLabel>Total Prediksi</StatLabel>
                     <StatNumber color="#34A853">{metrics.total_predictions.toLocaleString()}</StatNumber>
-                    <StatHelpText>AI inferences made</StatHelpText>
+                    <StatHelpText>Inferensi AI dilakukan</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -640,9 +640,9 @@ export default function AdminPage() {
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Uptime</StatLabel>
+                    <StatLabel>Waktu Aktif</StatLabel>
                     <StatNumber color="#34A853">{metrics.uptime_percentage.toFixed(1)}%</StatNumber>
-                    <StatHelpText>System availability</StatHelpText>
+                    <StatHelpText>Ketersediaan sistem</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>
@@ -650,9 +650,9 @@ export default function AdminPage() {
               <GridItem>
                 <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
                   <Stat>
-                    <StatLabel>Avg Inference</StatLabel>
+                    <StatLabel>Rata-rata Inferensi</StatLabel>
                     <StatNumber color="#34A853">{metrics.average_inference_time_ms}</StatNumber>
-                    <StatHelpText>milliseconds</StatHelpText>
+                    <StatHelpText>milidetik</StatHelpText>
                   </Stat>
                 </Box>
               </GridItem>

@@ -64,8 +64,8 @@ export default function BusinessAnalysisModal({
       !monthlyFixedCosts
     ) {
       toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields',
+        title: 'Kesalahan Validasi',
+        description: 'Mohon isi semua field yang diperlukan',
         status: 'error',
         isClosable: true,
       });
@@ -92,16 +92,16 @@ export default function BusinessAnalysisModal({
 
       setAnalysis(response.data.data);
       toast({
-        title: 'Success',
-        description: 'Business analysis completed',
+        title: 'Berhasil',
+        description: 'Analisis bisnis selesai',
         status: 'success',
         isClosable: true,
       });
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
       toast({
-        title: 'Error',
-        description: err.response?.data?.detail || 'Failed to run analysis',
+        title: 'Kesalahan',
+        description: err.response?.data?.detail || 'Gagal menjalankan analisis',
         status: 'error',
         isClosable: true,
       });
@@ -127,8 +127,8 @@ export default function BusinessAnalysisModal({
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
       toast({
-        title: 'Error',
-        description: err.response?.data?.detail || 'Failed to download report',
+        title: 'Kesalahan',
+        description: err.response?.data?.detail || 'Gagal mengunduh laporan',
         status: 'error',
         isClosable: true,
       });

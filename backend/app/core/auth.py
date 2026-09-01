@@ -33,7 +33,7 @@ async def get_current_user(
     if not isinstance(user_id, str) or not user_id.strip():
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication claims",
+            detail="Kredensial autentikasi tidak valid",
         )
 
     user = db.query(User).filter(User.id == user_id).first()
@@ -74,7 +74,7 @@ def require_role(*allowed_roles: str):
         if role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions",
+                detail="Izin tidak mencukupi",
             )
         return role
 

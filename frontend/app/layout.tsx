@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -12,21 +12,20 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "EcoFlow - Smart Eco-Enzyme Assistant",
-  description: "AI-powered fermentation monitoring and product recommendation platform",
+  title: "EcoFlow - Asisten Cerdas Fermentasi Eco-Enzyme",
+  description: "Platform pemantauan fermentasi dan rekomendasi produk turunan eco-enzyme berbasis AI",
   manifest: "/manifest.json",
-  themeColor: "#15803D",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "EcoFlow AI",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#15803D",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

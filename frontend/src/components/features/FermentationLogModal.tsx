@@ -313,7 +313,7 @@ export default function FermentationLogModal({
 
               <FormControl isRequired>
                 <FormLabel htmlFor="temperature" color="gray.300">Suhu (°C)</FormLabel>
-                <NumberInput value={temperature} onChange={setTemperature} min={-50} max={100}>
+                <NumberInput value={temperature} onChange={setTemperature} min={-10} max={60}>
                   <NumberInputField
                     id="temperature"
                     name="temperature"
@@ -421,11 +421,11 @@ export default function FermentationLogModal({
                        </Badge>
                      </HStack>
                      <HStack>
-                       <Text fontWeight="bold" color="gray.100">Confidence:</Text>
+                       <Text fontWeight="bold" color="gray.100">Kepercayaan:</Text>
                        <Text color="gray.300">{(Number(prediction.ai_confidence_score) * 100).toFixed(0)}%</Text>
                      </HStack>
                      <HStack>
-                       <Text fontWeight="bold" color="gray.100">Health Score:</Text>
+                       <Text fontWeight="bold" color="gray.100">Skor Kesehatan:</Text>
                        <Text color="gray.300">{Number(prediction.health_score)}/100</Text>
                      </HStack>
                      <Box>
