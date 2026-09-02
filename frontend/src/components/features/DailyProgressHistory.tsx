@@ -39,24 +39,35 @@ export default function DailyProgressHistory({ batchId }: DailyProgressHistoryPr
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDailyLogs();
-  }, [batchId]);
-
-  const fetchDailyLogs = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiClient.get(`/api/v1/batches/${batchId}/daily-logs`);
-      if (response.data.status === 'success') {
-        setLogs(response.data.data.daily_logs || []);
+    let isMounted = true;
+    
+    const loadLogs = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await apiClient.get(`/api/v1/batches/${batchId}/daily-logs`);
+        if (isMounted && response.data.status === 'success') {
+          setLogs(response.data.data.daily_logs || []);
+        }
+      } catch (err: unknown) {
+        if (isMounted) {
+          const errorObj = err as { response?: { data?: { detail?: string } } };
+          console.error('Error fetching daily logs:', err);
+          setError(errorObj.response?.data?.detail || 'Gagal memuat riwayat progres');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    } catch (err: any) {
-      console.error('Error fetching daily logs:', err);
-      setError(err.response?.data?.detail || 'Gagal memuat riwayat progres');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    loadLogs();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [batchId]);
 
   const getConditionColor = (condition: string) => {
     if (condition.includes('Normal') || condition.includes('Asam Segar')) return 'green';

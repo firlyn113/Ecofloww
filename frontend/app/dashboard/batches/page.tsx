@@ -8,7 +8,7 @@ import apiClient from '@/lib/api';
 import CreateBatchModal from '@/src/components/features/CreateBatchModal';
 import { differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
-import { FiBox, FiCalendar, FiDroplet, FiPlus, FiThermometer, FiTrendingUp, FiTrash2, FiMoreVertical, FiSearch, FiFilter, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiBox, FiCalendar, FiDroplet, FiPlus, FiThermometer, FiTrendingUp, FiMoreVertical, FiSearch, FiFilter, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { LuCpu } from 'react-icons/lu';
 import {
   Menu,
@@ -386,7 +386,7 @@ function BatchesContent() {
         isClosable: true,
       });
       refreshBatches();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Gagal menghapus',
         description: 'Terjadi kesalahan saat menghapus batch.',
@@ -410,7 +410,7 @@ function BatchesContent() {
         isClosable: true,
       });
       refreshBatches();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Gagal memperbarui',
         description: 'Terjadi kesalahan saat mengubah status.',

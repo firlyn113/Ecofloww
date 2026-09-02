@@ -105,11 +105,12 @@ export default function DailyLogModal({
         resetForm();
         onSuccess();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
       console.error('Daily log submission error:', error);
       toast({
         title: 'Gagal menyimpan log',
-        description: error.response?.data?.detail || 'Terjadi kesalahan saat menyimpan progres harian',
+        description: err.response?.data?.detail || 'Terjadi kesalahan saat menyimpan progres harian',
         status: 'error',
         duration: 5000,
         isClosable: true,

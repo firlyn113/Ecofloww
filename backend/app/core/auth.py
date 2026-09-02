@@ -26,7 +26,18 @@ async def get_current_user(
         HTTPException: 401 jika token invalid/expired atau tanpa UID valid.
     """
     token = credentials.credentials
-    decoded_token = verify_token(token)
+    
+    try:
+        decoded_token = verify_token(token)
+    except HTTPException as e:
+        # Re-raise HTTPException from verify_token
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Gagal memproses token autentikasi",
+        )
+    
     user_id = decoded_token.get("uid")
     token_email = decoded_token.get("email")
 

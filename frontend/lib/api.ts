@@ -32,4 +32,24 @@ apiClient.interceptors.response.use(
   }
 );
 
+export function getErrorMessage(error: unknown, fallbackMessage: string): string {
+  if (!error || typeof error !== 'object') return fallbackMessage;
+  const err = error as { response?: { data?: { detail?: string | Array<{ msg?: string }> } } };
+  const detail = err.response?.data?.detail;
+
+  if (typeof detail === 'string') {
+    return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    return detail.map((d) => (typeof d === 'string' ? d : d.msg || JSON.stringify(d))).join(', ');
+  }
+
+  if (detail && typeof detail === 'object') {
+    return JSON.stringify(detail);
+  }
+
+  return fallbackMessage;
+}
+
 export default apiClient;

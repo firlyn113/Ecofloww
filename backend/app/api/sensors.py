@@ -12,6 +12,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/sensors", tags=["IoT Sensors"])
+# TODO: Integrasi IoT sensor untuk monitoring real-time
+# Implementasi yang diperlukan:
+# 1. Autentikasi API key untuk hardware IoT
+# 2. Validasi data sensor dengan range yang sesuai
+# 3. Integrasi dengan dashboard real-time
+# 4. Alerts dan notifikasi otomatis
 
 
 class SensorData(BaseModel):

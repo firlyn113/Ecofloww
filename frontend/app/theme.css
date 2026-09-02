@@ -1,0 +1,282 @@
+/* EcoFlow AI Theme - Custom Styles and Animations */
+
+/* Color Variables */
+:root {
+  --color-primary: #059669;
+  --color-primary-light: #10b981;
+  --color-primary-dark: #047857;
+  --color-secondary: #3b82f6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+  
+  --color-surface: #ffffff;
+  --color-surface-light: #f8fafc;
+  --color-surface-dark: #f1f5f9;
+  
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-tertiary: #94a3b8;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-emerald: 0 10px 15px -3px rgba(5, 150, 105, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(10deg);
+  }
+  75% {
+    transform: rotate(-10deg);
+  }
+}
+
+/* Custom Utility Classes */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-wave {
+  animation: wave 0.5s ease-in-out;
+}
+
+/* Card Styling */
+.card {
+  @apply bg-white rounded-xl border border-slate-200 shadow-sm transition-all duration-300;
+}
+
+.card-hover {
+  @apply hover:shadow-md hover:border-emerald-200 hover:-translate-y-0.5;
+}
+
+.card-highlight {
+  @apply bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-emerald-400 shadow-lg shadow-emerald-500/25;
+}
+
+/* Button Styling */
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+}
+
+.btn-primary {
+  @apply bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:outline-emerald-500 shadow-sm;
+}
+
+.btn-secondary {
+  @apply bg-slate-100 text-slate-700 hover:bg-slate-200 focus-visible:outline-slate-300 border border-slate-300;
+}
+
+.btn-outline {
+  @apply bg-transparent text-slate-700 hover:bg-slate-50 focus-visible:outline-slate-300 border border-slate-300;
+}
+
+.btn-ghost {
+  @apply bg-transparent text-slate-600 hover:bg-slate-100 focus-visible:outline-slate-300;
+}
+
+/* Badge Styling */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+  @apply bg-emerald-100 text-emerald-800;
+}
+
+.badge-secondary {
+  @apply bg-slate-100 text-slate-800;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-warning {
+  @apply bg-amber-100 text-amber-800;
+}
+
+.badge-danger {
+  @apply bg-red-100 text-red-800;
+}
+
+/* Form Styling */
+.form-input {
+  @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:ring-offset-1 transition-colors;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-slate-700 mb-1;
+}
+
+/* Progress Bar Styling */
+.progress-bar {
+  @apply h-2 bg-slate-100 rounded-full overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full bg-emerald-500 rounded-full transition-all duration-500;
+}
+
+/* Gradient Backgrounds */
+.gradient-primary {
+  @apply bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600;
+}
+
+.gradient-surface {
+  @apply bg-gradient-to-br from-white to-slate-50;
+}
+
+/* Loading States */
+.loading-spinner {
+  @apply animate-spin rounded-full border-2 border-slate-200 border-t-emerald-500;
+}
+
+.loading-pulse {
+  @apply animate-pulse bg-slate-100 rounded;
+}
+
+/* Typography */
+.heading-1 {
+  @apply text-3xl font-bold text-slate-900 tracking-tight;
+}
+
+.heading-2 {
+  @apply text-2xl font-semibold text-slate-900 tracking-tight;
+}
+
+.heading-3 {
+  @apply text-xl font-semibold text-slate-900;
+}
+
+.body-large {
+  @apply text-lg text-slate-700 leading-relaxed;
+}
+
+.body-base {
+  @apply text-base text-slate-700 leading-normal;
+}
+
+.body-small {
+  @apply text-sm text-slate-600 leading-normal;
+}
+
+/* Layout Utilities */
+.container-padded {
+  @apply px-4 sm:px-6 lg:px-8;
+}
+
+.section-spacing {
+  @apply py-8 sm:py-12;
+}
+
+.grid-responsive {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100 rounded;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded hover:bg-slate-400 transition-colors;
+}
+
+/* Focus States */
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2;
+}
+
+/* Transition Utilities */
+.transition-smooth {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.transition-bounce {
+  @apply transition-all duration-300 ease-bounce;
+}
+
+/* Glass Effect */
+.glass {
+  @apply backdrop-blur-sm bg-white/70 border border-white/20;
+}
+
+.glass-dark {
+  @apply backdrop-blur-sm bg-black/20 border border-white/10;
+}
+
+/* Shadow Effects */
+.shadow-emerald {
+  box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.1), 0 4px 6px -2px rgba(5, 150, 105, 0.05);
+}
+
+.shadow-elevated {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}

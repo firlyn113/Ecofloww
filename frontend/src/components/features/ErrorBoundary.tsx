@@ -31,7 +31,15 @@ export default class ErrorBoundary extends Component<Props, State> {
               Terjadi Kesalahan
             </Heading>
             <Text color="gray.600">
-              {this.state.error?.message || 'Something went wrong.'}
+              {typeof this.state.error?.message === 'string'
+                ? this.state.error.message
+                : typeof this.state.error === 'string'
+                ? this.state.error
+                : Array.isArray(this.state.error?.message)
+                ? (this.state.error.message as Array<{ msg?: string }>).map((e) => e.msg).join(', ')
+                : typeof this.state.error === 'object' && this.state.error !== null
+                ? JSON.stringify(this.state.error)
+                : 'Something went wrong.'}
             </Text>
             <Button
               bg="#34A853"

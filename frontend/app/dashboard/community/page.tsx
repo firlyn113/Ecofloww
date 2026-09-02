@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Card, CardBody, Heading, Text, Button, Grid, Avatar, Badge, HStack, VStack, Divider, Icon } from '@chakra-ui/react';
-import { FiShare2, FiHeart, FiMessageCircle, FiTrendingUp, FiUsers } from 'react-icons/fi';
+import { FiUsers, FiShare2, FiTrendingUp, FiHeart, FiMessageCircle, FiFilter, FiChevronRight } from 'react-icons/fi';
 
 interface CommunityBatch {
   id: number;
@@ -60,6 +59,7 @@ const mockCommunityBatches: CommunityBatch[] = [
 export default function CommunityPage() {
   const [batches] = useState<CommunityBatch[]>(mockCommunityBatches);
   const [likedBatches, setLikedBatches] = useState<Set<number>>(new Set());
+  const [filter, setFilter] = useState<string>('all');
 
   const handleLike = (batchId: number) => {
     setLikedBatches((prev) => {
@@ -73,132 +73,226 @@ export default function CommunityPage() {
     });
   };
 
+  const filteredBatches = batches.filter(batch => {
+    if (filter === 'all') return true;
+    if (filter === 'active') return batch.status === 'active';
+    if (filter === 'harvested') return batch.status === 'harvested';
+    return true;
+  });
+
   return (
-    <Box p={6} maxW="7xl" mx="auto">
-      <VStack align="stretch" spacing={6}>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-50 p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <Card bg="gradient-to-r from-emerald-50 to-amber-50" borderRadius="2xl" borderWidth={1} borderColor="emerald.200">
-          <CardBody p={8}>
-            <HStack justify="space-between" align="start">
-              <VStack align="start" spacing={2}>
-                <HStack>
-                  <Icon as={FiUsers} boxSize={8} color="emerald.700" />
-                  <Heading size="xl" color="stone.900">
-                    Komunitas EcoFlow
-                  </Heading>
-                </HStack>
-                <Text fontSize="lg" color="stone.600">
-                  Berbagi pengalaman, tips, dan inspirasi fermentasi eco-enzyme dari komunitas
-                </Text>
-              </VStack>
-              <Button
-                leftIcon={<FiShare2 />}
-                colorScheme="green"
-                size="lg"
-                bg="emerald.700"
-                _hover={{ bg: 'emerald.600' }}
-              >
-                Bagikan Batch Saya
-              </Button>
-            </HStack>
-          </CardBody>
-        </Card>
+        <div className="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 rounded-2xl p-6 md:p-8 text-white shadow-lg shadow-emerald-500/25">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <FiUsers size={24} />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold">Komunitas EcoFlow</h1>
+                  <p className="text-emerald-100 mt-1">Berbagi pengalaman dan inspirasi fermentasi</p>
+                </div>
+              </div>
+              <p className="text-emerald-100 text-lg max-w-2xl leading-relaxed">
+                Bergabunglah dengan komunitas pecinta eco-enzyme. Bagikan pengalaman, pelajari tips praktis, dan dapatkan inspirasi untuk fermentasimu.
+              </p>
+            </div>
+            <button className="flex items-center gap-2 px-5 py-3 bg-white text-emerald-700 font-semibold rounded-lg hover:bg-emerald-50 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-600/20">
+              <FiShare2 />
+              <span>Bagikan Batch</span>
+            </button>
+          </div>
+        </div>
 
         {/* Stats */}
-        <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
-          <Card>
-            <CardBody textAlign="center">
-              <Icon as={FiUsers} boxSize={8} color="emerald.600" mb={2} />
-              <Heading size="md" color="stone.800">1,247</Heading>
-              <Text fontSize="sm" color="stone.600">Anggota Aktif</Text>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody textAlign="center">
-              <Icon as={FiShare2} boxSize={8} color="amber.600" mb={2} />
-              <Heading size="md" color="stone.800">342</Heading>
-              <Text fontSize="sm" color="stone.600">Batch Dibagikan</Text>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody textAlign="center">
-              <Icon as={FiTrendingUp} boxSize={8} color="emerald.600" mb={2} />
-              <Heading size="md" color="stone.800">89%</Heading>
-              <Text fontSize="sm" color="stone.600">Success Rate</Text>
-            </CardBody>
-          </Card>
-        </Grid>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Anggota Aktif</p>
+                <p className="text-2xl font-bold text-slate-800 mt-2">1,247</p>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <FiUsers className="text-emerald-600" size={20} />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Batch Dibagikan</p>
+                <p className="text-2xl font-bold text-slate-800 mt-2">342</p>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center">
+                <FiShare2 className="text-amber-600" size={20} />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Tingkat Keberhasilan</p>
+                <p className="text-2xl font-bold text-slate-800 mt-2">89%</p>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-teal-100 flex items-center justify-center">
+                <FiTrendingUp className="text-teal-600" size={20} />
+              </div>
+            </div>
+          </div>
+        </div>
 
-        {/* Community Batches Feed */}
-        <Heading size="lg" color="stone.900" mt={4}>
-          Timeline Komunitas
-        </Heading>
+        {/* Filter */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Timeline Komunitas</h2>
+            <p className="text-slate-600 mt-1">Update terbaru dari anggota komunitas</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                filter === 'all' 
+                  ? 'bg-emerald-600 text-white' 
+                  : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+              }`}
+            >
+              Semua
+            </button>
+            <button
+              onClick={() => setFilter('active')}
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                filter === 'active' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+              }`}
+            >
+              Aktif
+            </button>
+            <button
+              onClick={() => setFilter('harvested')}
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                filter === 'harvested' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+              }`}
+            >
+              Panen
+            </button>
+          </div>
+        </div>
 
-        <VStack align="stretch" spacing={4}>
-          {batches.map((batch) => (
-            <Card key={batch.id} borderRadius="xl" borderWidth={1} borderColor="stone.200" _hover={{ shadow: 'lg' }} transition="all 0.2s">
-              <CardBody p={6}>
-                <HStack align="start" spacing={4} mb={4}>
-                  <Avatar name={batch.userName} size="md" bg="emerald.500" />
-                  <VStack align="start" spacing={1} flex={1}>
-                    <Heading size="sm" color="stone.900">
-                      {batch.userName}
-                    </Heading>
-                    <Text fontSize="xs" color="stone.500">
-                      {batch.sharedAt}
-                    </Text>
-                  </VStack>
-                  <Badge colorScheme={batch.status === 'harvested' ? 'green' : 'yellow'} fontSize="xs" px={3} py={1}>
+        {/* Community Feed */}
+        <div className="space-y-6">
+          {filteredBatches.map((batch) => (
+            <div key={batch.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold">
+                      {batch.userName.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-800">{batch.userName}</h3>
+                      <p className="text-sm text-slate-500">{batch.sharedAt}</p>
+                    </div>
+                  </div>
+                  <div className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
+                    batch.status === 'harvested' 
+                      ? 'bg-green-100 text-green-800 border border-green-200' 
+                      : 'bg-blue-100 text-blue-800 border border-blue-200'
+                  }`}>
                     {batch.status === 'harvested' ? 'Panen Berhasil' : 'Dalam Proses'}
-                  </Badge>
-                </HStack>
+                  </div>
+                </div>
 
-                <VStack align="start" spacing={3}>
-                  <Heading size="md" color="emerald.700">
-                    {batch.batchName}
-                  </Heading>
+                {/* Batch Info */}
+                <div className="mb-4">
+                  <h4 className="text-lg font-semibold text-emerald-700 mb-2">{batch.batchName}</h4>
+                  <div className="flex items-center gap-4 text-sm text-slate-600">
+                    <span><strong>{batch.wasteWeight} kg</strong> bahan organik</span>
+                    <span>•</span>
+                    <span><strong>Hari {batch.daysElapsed}</strong> dari 90</span>
+                  </div>
+                </div>
 
-                  <HStack spacing={4} fontSize="sm" color="stone.600">
-                    <Text>
-                      <strong>{batch.wasteWeight} kg</strong> bahan organik
-                    </Text>
-                    <Text>•</Text>
-                    <Text>
-                      <strong>Hari {batch.daysElapsed}</strong> dari 90
-                    </Text>
-                  </HStack>
+                {/* Tips */}
+                <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mb-4">
+                  <div className="flex items-start gap-2">
+                    <span className="text-amber-600 text-lg">💡</span>
+                    <p className="text-sm text-amber-800 leading-relaxed">{batch.tips}</p>
+                  </div>
+                </div>
 
-                  <Box bg="amber.50" p={4} borderRadius="lg" borderLeft="4px" borderColor="amber.500" w="full">
-                    <Text fontSize="sm" color="stone.700" fontStyle="italic">
-                      💡 {batch.tips}
-                    </Text>
-                  </Box>
-
-                  <Divider />
-
-                  <HStack spacing={4} w="full">
-                    <Button
-                      leftIcon={<FiHeart />}
-                      variant="ghost"
-                      size="sm"
-                      colorScheme={likedBatches.has(batch.id) ? 'red' : 'gray'}
-                      onClick={() => handleLike(batch.id)}
-                    >
-                      {batch.likes + (likedBatches.has(batch.id) ? 1 : 0)}
-                    </Button>
-                    <Button leftIcon={<FiMessageCircle />} variant="ghost" size="sm">
-                      {batch.comments} Komentar
-                    </Button>
-                    <Button leftIcon={<FiShare2 />} variant="ghost" size="sm" ml="auto">
-                      Bagikan
-                    </Button>
-                  </HStack>
-                </VStack>
-              </CardBody>
-            </Card>
+                {/* Actions */}
+                <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
+                  <button
+                    onClick={() => handleLike(batch.id)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      likedBatches.has(batch.id)
+                        ? 'bg-red-50 text-red-600'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <FiHeart className={likedBatches.has(batch.id) ? 'fill-red-500 text-red-500' : ''} />
+                    <span>{batch.likes + (likedBatches.has(batch.id) ? 1 : 0)}</span>
+                  </button>
+                  <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors">
+                    <FiMessageCircle />
+                    <span>{batch.comments} Komentar</span>
+                  </button>
+                  <button className="ml-auto flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors">
+                    <FiShare2 />
+                    <span>Bagikan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
-        </VStack>
-      </VStack>
-    </Box>
+        </div>
+
+        {/* Empty State */}
+        {filteredBatches.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
+            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+              <FiFilter size={24} className="text-slate-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">Tidak ada batch ditemukan</h3>
+            <p className="text-slate-600">Coba ubah filter untuk melihat lebih banyak konten</p>
+          </div>
+        )}
+
+        {/* Community Info */}
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-800 mb-2">Bergabung dengan Komunitas</h3>
+              <p className="text-slate-600 mb-4 max-w-2xl">
+                Komunitas EcoFlow adalah tempat untuk saling berbagi, belajar, dan menginspirasi. 
+                Dapatkan tips praktis, tanyakan masalah fermentasi, dan lihat bagaimana orang lain 
+                memanfaatkan eco-enzyme untuk kehidupan sehari-hari.
+              </p>
+              <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
+                <span>Bergabung Sekarang</span>
+                <FiChevronRight />
+              </button>
+            </div>
+            <div className="hidden md:flex items-center gap-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold">
+                  {String.fromCharCode(64 + i)}
+                </div>
+              ))}
+              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600">
+                +{mockCommunityBatches.length}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

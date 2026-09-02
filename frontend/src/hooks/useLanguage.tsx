@@ -1,7 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { translations, Language } from '@/lib/i18n';
+import { createContext, useContext, useState, ReactNode } from 'react';
+import { translations, Language } from '@/src/lib/i18n';
 
 interface LanguageContextType {
   language: Language;
@@ -12,14 +12,15 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('id');
-
-  useEffect(() => {
-    const savedLang = localStorage.getItem('ecoflow-language') as Language;
-    if (savedLang && (savedLang === 'en' || savedLang === 'id')) {
-      setLanguageState(savedLang);
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('ecoflow-language') as Language;
+      if (savedLang && (savedLang === 'en' || savedLang === 'id')) {
+        return savedLang;
+      }
     }
-  }, []);
+    return 'id';
+  });
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);

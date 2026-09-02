@@ -8,12 +8,12 @@ const offlineStore = localforage.createInstance({
 interface OfflineEntry {
   id: string;
   type: 'fermentation_log' | 'batch_create' | 'batch_update';
-  data: any;
+  data: Record<string, unknown>;
   timestamp: number;
   retries: number;
 }
 
-export async function addToOfflineQueue(type: OfflineEntry['type'], data: any): Promise<void> {
+export async function addToOfflineQueue(type: OfflineEntry['type'], data: Record<string, unknown>): Promise<void> {
   const entry: OfflineEntry = {
     id: `${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     type,
@@ -38,7 +38,12 @@ export async function clearOfflineQueue(): Promise<void> {
   console.log('[Offline Queue] Cleared');
 }
 
-export async function syncOfflineData(apiClient: any): Promise<number> {
+interface ApiClient {
+  post: (url: string, data?: unknown) => Promise<unknown>;
+  put: (url: string, data?: unknown) => Promise<unknown>;
+}
+
+export async function syncOfflineData(apiClient: ApiClient): Promise<number> {
   if (!navigator.onLine) {
     console.log('[Offline Sync] Device is offline, skipping sync');
     return 0;
@@ -85,7 +90,7 @@ export async function syncOfflineData(apiClient: any): Promise<number> {
   return syncedCount;
 }
 
-export function setupAutoSync(apiClient: any, intervalMs: number = 30000) {
+export function setupAutoSync(apiClient: ApiClient, intervalMs: number = 30000) {
   if (typeof window === 'undefined') return;
 
   window.addEventListener('online', () => {

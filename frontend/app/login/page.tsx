@@ -2,23 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Box,
-  Button,
-  Container,
-  FormControl,
-  FormLabel,
-  Input,
-  Stack,
-  Text,
-  useToast,
-  Heading,
-  Divider,
-  InputGroup,
-  InputRightElement,
-  IconButton,
-} from '@chakra-ui/react';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiMail, FiLock, FiUser, FiPhone, FiArrowRight, FiCheck } from 'react-icons/fi';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -78,11 +62,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [toast, setToast] = useState<{ title: string; message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const router = useRouter();
-  const toast = useToast();
 
   const handleSuccess = () => {
     router.push('/dashboard');
+  };
+
+  const showToast = (title: string, message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ title, message, type });
+    setTimeout(() => setToast(null), 5000);
   };
 
   const persistProfile = async (displayName: string, phoneNumber: string) => {
@@ -107,12 +96,7 @@ export default function LoginPage() {
           await updateProfile(userCredential.user, { displayName: name.trim() });
         }
         await persistProfile(name.trim(), phone.trim());
-        toast({
-          title: 'Akun berhasil dibuat',
-          description: 'Selamat datang di EcoFlow AI!',
-          status: 'success',
-          isClosable: true,
-        });
+        showToast('Akun berhasil dibuat', 'Selamat datang di EcoFlow AI!', 'success');
         handleSuccess();
       } else {
         await signInWithEmailAndPassword(auth, email, password);
@@ -121,13 +105,7 @@ export default function LoginPage() {
     } catch (error: unknown) {
       const err = error as { code?: string; message?: string };
       const errorMessage = err.code ? getFirebaseErrorMessage(err.code) : (err.message || 'Autentikasi gagal');
-      toast({
-        title: 'Gagal masuk',
-        description: errorMessage,
-        status: 'error',
-        isClosable: true,
-        duration: 5000,
-      });
+      showToast('Gagal masuk', errorMessage, 'error');
     } finally {
       setLoading(false);
     }
@@ -143,146 +121,219 @@ export default function LoginPage() {
     } catch (error: unknown) {
       const err = error as { code?: string; message?: string };
       const errorMessage = err.code ? getFirebaseErrorMessage(err.code) : (err.message || 'Google sign-in gagal');
-      toast({
-        title: 'Gagal masuk dengan Google',
-        description: errorMessage,
-        status: 'error',
-        isClosable: true,
-        duration: 5000,
-      });
+      showToast('Gagal masuk dengan Google', errorMessage, 'error');
     } finally {
       setGoogleLoading(false);
     }
   };
 
   return (
-    <Container maxW="sm" py={{ base: '12', md: '24' }}>
-      <Stack spacing="8">
-        <Stack spacing="2">
-          <Heading textAlign="center" size="xl" color="#34A853">
-            EcoFlow
-          </Heading>
-          <Text textAlign="center" fontSize="sm" color="gray.600">
-            Asisten Fermentasi Eco-Enzyme Pintar
-          </Text>
-        </Stack>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-50 flex items-center justify-center p-4">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 max-w-md rounded-lg border p-4 shadow-lg animate-slide-in-right ${
+          toast.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' :
+          toast.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
+          'bg-blue-50 border-blue-200 text-blue-800'
+        }`}>
+          <div className="flex items-start gap-3">
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+              toast.type === 'success' ? 'bg-emerald-100 text-emerald-600' :
+              toast.type === 'error' ? 'bg-red-100 text-red-600' :
+              'bg-blue-100 text-blue-600'
+            }`}>
+              {toast.type === 'success' ? <FiCheck /> : '!'}
+            </div>
+            <div>
+              <p className="font-semibold">{toast.title}</p>
+              <p className="text-sm mt-1">{toast.message}</p>
+            </div>
+            <button
+              onClick={() => setToast(null)}
+              className="ml-auto text-slate-400 hover:text-slate-600"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
-        <Box
-          py={{ base: '8', sm: '8' }}
-          px={{ base: '4', sm: '10' }}
-          bg={{ base: 'transparent', sm: 'white' }}
-          boxShadow={{ base: 'none', sm: 'md' }}
-          borderRadius="lg"
-        >
-          <Stack spacing="md">
-            <Button
+      <div className="w-full max-w-md">
+        {/* Logo Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25 mb-4">
+            <span className="text-2xl font-bold text-white">E</span>
+          </div>
+          <h1 className="text-3xl font-bold text-slate-800">EcoFlow AI</h1>
+          <p className="text-slate-600 mt-2">Asisten Fermentasi Eco-Enzyme Pintar</p>
+        </div>
+
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-xl shadow-emerald-500/10 border border-slate-200 overflow-hidden">
+          {/* Card Header */}
+          <div className="p-8 border-b border-slate-100">
+            <h2 className="text-2xl font-bold text-slate-800">
+              {isSignUp ? 'Daftar Akun Baru' : 'Masuk ke Akun'}
+            </h2>
+            <p className="text-slate-600 mt-2">
+              {isSignUp ? 'Bergabung dengan komunitas eco-enzyme' : 'Lanjutkan perjalanan fermentasimu'}
+            </p>
+          </div>
+
+          <div className="p-8">
+            {/* Google Button */}
+            <button
               type="button"
               onClick={handleGoogleSignIn}
-              isLoading={googleLoading}
-              bg="white"
-              color="gray.800"
-              borderWidth="1px"
-              borderColor="gray.300"
-              width="full"
-              leftIcon={<GoogleLogo />}
-              _hover={{ bg: 'gray.50' }}
+              disabled={googleLoading}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-slate-800 font-medium rounded-lg border border-slate-300 hover:bg-slate-50 hover:border-slate-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-6"
             >
-              {isSignUp ? 'Daftar dengan Google' : 'Masuk dengan Google'}
-            </Button>
+              {googleLoading ? (
+                <div className="w-5 h-5 border-2 border-slate-200 border-t-slate-600 rounded-full animate-spin"></div>
+              ) : (
+                <>
+                  <GoogleLogo />
+                  <span>{isSignUp ? 'Daftar dengan Google' : 'Masuk dengan Google'}</span>
+                </>
+              )}
+            </button>
 
-            <Divider />
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-slate-500">atau</span>
+              </div>
+            </div>
 
-            <form onSubmit={handleAuth}>
-              <Stack spacing="5">
-                {isSignUp && (
-                  <FormControl>
-                    <FormLabel htmlFor="name">Nama lengkap</FormLabel>
-                    <Input
-                      id="name"
-                      name="name"
+            {/* Form */}
+            <form onSubmit={handleAuth} className="space-y-4">
+              {isSignUp && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                      <FiUser className="text-slate-400" />
+                      Nama lengkap
+                    </label>
+                    <input
                       type="text"
-                      placeholder="Nama Lengkap"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
+                      placeholder="Nama Lengkap"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-colors"
+                      required={isSignUp}
                     />
-                  </FormControl>
-                )}
+                  </div>
 
-                <FormControl>
-                  <FormLabel htmlFor="email">Email</FormLabel>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="email@contoh.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </FormControl>
-
-                {isSignUp && (
-                  <FormControl>
-                    <FormLabel htmlFor="phone">Nomor telepon</FormLabel>
-                    <Input
-                      id="phone"
-                      name="phone"
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                      <FiPhone className="text-slate-400" />
+                      Nomor telepon (opsional)
+                    </label>
+                    <input
                       type="tel"
-                      placeholder="+62 812-3456-7890"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+62 812-3456-7890"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-colors"
                     />
-                  </FormControl>
-                )}
+                  </div>
+                </>
+              )}
 
-                <FormControl>
-                  <FormLabel htmlFor="password">Kata sandi</FormLabel>
-                  <InputGroup>
-                    <Input
-                      id="password"
-                      name="password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    <InputRightElement>
-                      <IconButton
-                        aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
-                        icon={showPassword ? <FiEyeOff /> : <FiEye />}
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                      />
-                    </InputRightElement>
-                  </InputGroup>
-                </FormControl>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                  <FiMail className="text-slate-400" />
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@contoh.com"
+                  className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-colors"
+                  required
+                />
+              </div>
 
-                <Button
-                  type="submit"
-                  bg="#34A853"
-                  color="white"
-                  isLoading={loading}
-                  _hover={{ bg: '#2a8a42' }}
-                >
-                  {isSignUp ? 'Daftar' : 'Masuk'}
-                </Button>
-
-                <Text textAlign="center" fontSize="sm">
-                  {isSignUp ? 'Sudah punya akun?' : 'Belum punya akun?'}{' '}
-                  <Button
-                    variant="link"
-                    color="#34A853"
-                    onClick={() => setIsSignUp(!isSignUp)}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                  <FiLock className="text-slate-400" />
+                  Kata sandi
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-colors pr-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
                   >
-                    {isSignUp ? 'Masuk' : 'Daftar'}
-                  </Button>
-                </Text>
-              </Stack>
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                </div>
+                {!isSignUp && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    Minimal 6 karakter
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-emerald-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <span>{isSignUp ? 'Daftar' : 'Masuk'}</span>
+                    <FiArrowRight />
+                  </>
+                )}
+              </button>
             </form>
-          </Stack>
-        </Box>
-      </Stack>
-    </Container>
+
+            {/* Toggle Sign Up/Login */}
+            <div className="mt-6 text-center">
+              <p className="text-slate-600">
+                {isSignUp ? 'Sudah punya akun?' : 'Belum punya akun?'}{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-emerald-600 font-semibold hover:text-emerald-700 hover:underline"
+                >
+                  {isSignUp ? 'Masuk' : 'Daftar'}
+                </button>
+              </p>
+            </div>
+          </div>
+
+          {/* Card Footer */}
+          <div className="px-8 py-4 bg-slate-50 border-t border-slate-200">
+            <p className="text-xs text-slate-500 text-center">
+              Dengan melanjutkan, Anda menyetujui{' '}
+              <a href="#" className="text-emerald-600 hover:underline">Syarat Layanan</a> dan{' '}
+              <a href="#" className="text-emerald-600 hover:underline">Kebijakan Privasi</a>
+            </p>
+          </div>
+        </div>
+
+        {/* Footer Note */}
+        <div className="mt-8 text-center">
+          <p className="text-sm text-slate-500">
+            Platform monitoring fermentasi eco-enzyme berbasis AI
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,7 +1,14 @@
 from typing import Dict
+from sqlalchemy.orm import Session
 
 class BusinessAnalysisService:
     """Analisis kelayakan bisnis produksi eco-enzyme (COGS, SRP, margin, BEP)."""
+    
+    # Harga konstan
+    SUGAR_PRICE_PER_KG = 15000
+    FRUIT_WASTE_PRICE_PER_KG = 5000
+    WATER_PRICE_PER_LITER = 1000
+    SELLING_PRICE_PER_LITER = 25000
 
     @staticmethod
     def calculate_cogs(
@@ -137,6 +144,76 @@ class BusinessAnalysisService:
             return "Marginal"
         else:
             return "Not Viable"
+    
+    @staticmethod
+    def generate_dynamic_recommendations(
+        yearly_net_profit: float,
+        gross_margin_percentage: float,
+        roi_percentage: float,
+        db: Session = None
+    ) -> str:
+        """Buat rekomendasi dinamis berdasarkan performa batch.
+        
+        Args:
+            yearly_net_profit: Profit tahunan (IDR)
+            gross_margin_percentage: Persentase margin kotor
+            roi_percentage: Persentase ROI
+            db: Database session untuk query data historis
+        
+        Returns:
+            Rekomendasi teks dalam Bahasa Indonesia
+        """
+        # Analisis berdasarkan ROI dan margin
+        if roi_percentage > 100:
+            return "Pertahankan strategi produksi saat ini! ROI sangat tinggi (>100%). Fokus pada peningkatan skala dengan mengoptimalkan pengadaan bahan baku dan diversifikasi produk turunan."
+        elif roi_percentage > 50:
+            return "Strategi produksi cukup baik. Pertimbangkan untuk menambah variasi bahan baku untuk meningkatkan margin dan diversifikasi produk untuk mengurangi risiko pasar."
+        elif gross_margin_percentage < 30:
+            return "Margin masih rendah (<30%). Tingkatkan margin dengan: (1) Negosiasi harga bahan baku, (2) Optimasi rasio gula-sampah-air 1:3:10, (3) Diversifikasi produk bernilai tambah tinggi seperti bahan kosmetik."
+        elif yearly_net_profit < 1000:
+            return "Profitabilitas masih rendah. Evaluasi biaya produksi: (1) Cari supplier bahan baku lebih murah, (2) Otomatisasi proses untuk mengurangi biaya tenaga kerja, (3) Tingkatkan volume batch untuk mencapai economies of scale."
+        else:
+            return "Operasi dalam kondisi stabil. Rekomendasi: (1) Perluas ke produk bernilai tambah tinggi, (2) Bangun kemitraan dengan UMKM lokal, (3) Implementasi sistem monitoring real-time untuk kontrol kualitas."
+    
+    @staticmethod
+    def calculate_roi(
+        total_investment: float,
+        yearly_net_profit: float
+    ) -> float:
+        """Hitung ROI (Return on Investment) dalam persentase."""
+        return (yearly_net_profit / total_investment * 100) if total_investment > 0 else 0
+    
+    @staticmethod
+    def calculate_growth_projection(
+        historical_profits: list,
+        db: Session = None
+    ) -> float:
+        """Hitung proyeksi pertumbuhan berdasarkan data historis.
+        
+        Args:
+            historical_profits: List profit historis (IDR)
+            db: Database session untuk query data batch
+        
+        Returns:
+            Persentase proyeksi pertumbuhan (default 15% jika tidak ada data)
+        """
+        if not historical_profits or len(historical_profits) < 2:
+            # Jika tidak ada data historis, gunakan default 15%
+            return 15.0
+        
+        # Hitung growth rate dari data historis
+        growth_rates = []
+        for i in range(1, len(historical_profits)):
+            if historical_profits[i-1] > 0:
+                growth_rate = ((historical_profits[i] - historical_profits[i-1]) / historical_profits[i-1]) * 100
+                growth_rates.append(growth_rate)
+        
+        if not growth_rates:
+            return 15.0
+        
+        # Rata-rata growth rate historis
+        average_growth = sum(growth_rates) / len(growth_rates)
+        return round(average_growth, 2)
     
     @staticmethod
     def run_analysis(

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Box, Card, CardBody, Heading, Text, Grid, Icon, Progress, VStack, HStack, Badge, Center, Spinner } from '@chakra-ui/react';
-import { FiTrendingUp, FiDroplet, FiWind, FiLeaf } from 'react-icons/fi';
+import { FiTrendingUp, FiDroplet, FiWind } from 'react-icons/fi';
+import { FaLeaf } from 'react-icons/fa';
 import apiClient from '@/lib/api';
 
 interface ImpactData {
@@ -12,8 +13,10 @@ interface ImpactData {
   setara_pohon: number;
 }
 
+import { IconType } from 'react-icons';
+
 interface ImpactCardProps {
-  icon: any;
+  icon: IconType;
   label: string;
   value: string;
   unit: string;
@@ -109,7 +112,7 @@ export default function EnvironmentalImpactPanel() {
         <Card bg="gradient-to-r from-emerald-50 to-green-50" borderRadius="2xl" borderWidth={1} borderColor="emerald.200">
           <CardBody p={6}>
             <HStack spacing={3}>
-              <Icon as={FiLeaf} boxSize={8} color="emerald.700" />
+              <Icon as={FaLeaf} boxSize={8} color="emerald.700" />
               <VStack align="start" spacing={0}>
                 <Heading size="lg" color="stone.900">
                   Dampak Lingkungan
@@ -152,7 +155,7 @@ export default function EnvironmentalImpactPanel() {
             target="500 L"
           />
           <ImpactCard
-            icon={FiLeaf}
+            icon={FaLeaf}
             label="Setara Pohon"
             value={formatNumber(impactData.setara_pohon)}
             unit="pohon"
@@ -166,7 +169,7 @@ export default function EnvironmentalImpactPanel() {
         <Card bg="amber.50" borderRadius="xl" borderLeft="4px" borderColor="amber.500">
           <CardBody p={6}>
             <HStack spacing={3}>
-              <Icon as={FiLeaf} boxSize={6} color="amber.700" />
+              <Icon as={FaLeaf} boxSize={6} color="amber.700" />
               <VStack align="start" spacing={1}>
                 <Text fontSize="sm" fontWeight="bold" color="stone.900">
                   🌱 Ringkasan Dampak Anda

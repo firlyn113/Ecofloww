@@ -22,7 +22,7 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import apiClient from '@/lib/api';
+import apiClient, { getErrorMessage } from '@/lib/api';
 
 interface ProductRecommendationModalProps {
   isOpen: boolean;
@@ -68,7 +68,7 @@ export default function ProductRecommendationModal({
           harvest_date: new Date().toISOString(),
           harvest_volume_liters: parseFloat(harvestVolume),
           final_color: finalColor,
-          aroma_profile: aromaProfile,
+          aroma_intensity: aromaProfile,
           user_intent: userIntent,
         }
       );
@@ -81,10 +81,9 @@ export default function ProductRecommendationModal({
         isClosable: true,
       });
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { detail?: string } } };
       toast({
         title: 'Gagal',
-        description: err.response?.data?.detail || 'Gagal mendapatkan rekomendasi',
+        description: getErrorMessage(error, 'Gagal mendapatkan rekomendasi'),
         status: 'error',
         isClosable: true,
       });
@@ -108,10 +107,9 @@ export default function ProductRecommendationModal({
         duration: 3000,
       });
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { detail?: string } } };
       toast({
         title: 'Gagal',
-        description: err.response?.data?.detail || 'Gagal memilih produk',
+        description: getErrorMessage(error, 'Gagal memilih produk'),
         status: 'error',
         isClosable: true,
       });

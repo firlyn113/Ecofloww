@@ -441,7 +441,7 @@ export default function BusinessAnalysisModal({
             {analysis && (
               <>
                 <Button variant="outline" mr={3} onClick={handleDownloadReport} color="gray.300" borderColor="gray.600">
-                  Download PDF
+                  Unduh PDF
                 </Button>
                 <Button
                   bg="#34A853"

@@ -55,7 +55,17 @@ export const exportToPDF = (elementId: string, filename: string = 'export.pdf') 
   window.location.reload();
 };
 
-export const exportBatchReport = (batchData: any) => {
+interface BatchData {
+  name: string;
+  status: string;
+  waste_weight_kg: number;
+  water_liters: number;
+  sugar_kg: number;
+  start_date: string;
+  harvest_date?: string;
+}
+
+export const exportBatchReport = (batchData: BatchData) => {
   const reportHTML = `
     <div id="batch-report">
       <div style="text-align: center; margin-bottom: 30px;">

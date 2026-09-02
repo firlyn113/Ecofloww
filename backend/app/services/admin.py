@@ -49,6 +49,7 @@ class AdminService:
         total_users = users_query.count()
         total_batches = batches_query.count()
         total_waste = batches_query.with_entities(func.sum(FermentationBatch.waste_weight_kg)).scalar() or 0.0
+        total_enzyme = batches_query.with_entities(func.sum(FermentationBatch.water_liters)).scalar() or 0.0
         normal_logs = logs_query.filter(FermentationLog.ai_status == "Normal").count()
         failed_logs = logs_query.filter(FermentationLog.ai_status == "Failed").count()
         caution_logs = logs_query.filter(FermentationLog.ai_status == "Caution").count()
@@ -62,6 +63,7 @@ class AdminService:
             "total_users": total_users,
             "total_batches": total_batches,
             "total_waste_processed_kg": float(total_waste),
+            "total_enzyme_produced_liters": float(total_enzyme),
             "success_rate_percentage": round(success_rate, 2),
             "normal_logs": normal_logs,
             "caution_logs": caution_logs,
