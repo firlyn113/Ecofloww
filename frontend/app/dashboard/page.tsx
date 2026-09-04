@@ -148,17 +148,17 @@ export default function DashboardPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <span className="text-xl mt-0.5">⚠️</span>
-              <div className="flex-1">
+              <span className="mt-0.5 text-xl" aria-hidden="true">⚠️</span>
+              <div className="min-w-0 flex-1">
                 <p className="font-semibold text-red-900">Terjadi Kesalahan</p>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
+                <p className="mt-1 text-sm text-red-700">{error}</p>
               </div>
               <button
                 type="button"
                 onClick={refreshBatches}
-                className="shrink-0 px-4 py-2 text-sm font-semibold text-red-700 bg-red-100 border border-red-300 rounded-lg hover:bg-red-200 transition-colors"
+                className="shrink-0 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100"
               >
                 Coba Lagi
               </button>
@@ -166,134 +166,123 @@ export default function DashboardPage() {
           </div>
         )}
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <div className="flex items-start gap-3 justify-between">
-                <span className="text-xl" aria-hidden="true">⚠️</span>
-                <div className="flex-1">
-                  <p className="font-semibold text-red-900">Terjadi Kesalahan</p>
-                  <p className="text-sm text-red-700 mt-1">{error}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={refreshBatches}
-                  className="shrink-0 px-4 py-2 text-sm font-semibold text-red-700 border border-red-300 rounded-lg hover:bg-red-100 transition-colors"
-                >
-                  Coba Lagi
-                </button>
-              </div>
-            </div>
-          )}
-
         {/* Batch Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Active Batches */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-white rounded-2xl border border-emerald-100 shadow-md overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 p-5 text-white flex items-center justify-between shadow-sm">
               <div>
-                <h2 className="text-xl font-bold text-slate-800">Batch Aktif</h2>
-                <p className="text-sm text-slate-500 mt-1">Sedang dalam proses fermentasi</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl" aria-hidden="true">⚡</span>
+                  <h2 className="text-xl font-extrabold tracking-wide text-white">Batch Aktif</h2>
+                </div>
+                <p className="text-xs text-emerald-100 mt-1 font-medium">Sedang dalam proses fermentasi aktif</p>
               </div>
-              <span className="text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+              <span className="text-xs font-bold text-emerald-900 bg-emerald-100/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-200 shadow-inner">
                 {activeBatches.length} berjalan
               </span>
             </div>
-            
-            {loadingBatches ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500"></div>
-              </div>
-            ) : activeBatches.length === 0 ? (
-              <div className="text-center py-10 bg-emerald-50 rounded-xl border border-emerald-100">
-                <span className="text-4xl" aria-hidden="true">🌱</span>
-                <p className="mt-3 text-slate-600 text-sm">
-                  Belum ada batch aktif. Mulai batch baru untuk membuat eco-enzyme!
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(true)}
-                  className="mt-4 px-5 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
-                >
-                  Mulai Batch Baru
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {activeBatches.map((batch) => (
-                  <div key={batch.id} className="group hover:shadow-md transition-shadow">
-                    <BatchCard
-                      batch={batch}
-                      onLogClick={() => {
-                        setSelectedBatch(batch);
-                        setShowLogModal(true);
-                      }}
-                      onDailyLogClick={() => {
-                        setSelectedBatch(batch);
-                        setShowDailyLogModal(true);
-                      }}
-                      onRecommendationClick={() => {
-                        setSelectedBatch(batch);
-                        setShowRecommendationModal(true);
-                      }}
-                      onRoadmapClick={() => {
-                        setSelectedBatch(batch);
-                        setSelectedProductTemplateId(batch.selected_product_id ?? 1);
-                        setShowRoadmapModal(true);
-                      }}
-                      onAnalysisClick={() => {
-                        setSelectedBatch(batch);
-                        setShowAnalysisModal(true);
-                      }}
-                    />
-                    <div className="mt-4 pl-4">
-                      <DailyProgressHistory batchId={batch.id} />
+            <div className="p-6">
+              {loadingBatches ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500"></div>
+                </div>
+              ) : activeBatches.length === 0 ? (
+                <div className="text-center py-10 bg-emerald-50 rounded-xl border border-emerald-100">
+                  <span className="text-4xl" aria-hidden="true">🌱</span>
+                  <p className="mt-3 text-slate-600 text-sm">
+                    Belum ada batch aktif. Mulai batch baru untuk membuat eco-enzyme!
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(true)}
+                    className="mt-4 px-5 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
+                  >
+                    Mulai Batch Baru
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {activeBatches.map((batch) => (
+                    <div key={batch.id} className="group hover:shadow-md transition-shadow">
+                      <BatchCard
+                        batch={batch}
+                        onLogClick={() => {
+                          setSelectedBatch(batch);
+                          setShowLogModal(true);
+                        }}
+                        onDailyLogClick={() => {
+                          setSelectedBatch(batch);
+                          setShowDailyLogModal(true);
+                        }}
+                        onRecommendationClick={() => {
+                          setSelectedBatch(batch);
+                          setShowRecommendationModal(true);
+                        }}
+                        onRoadmapClick={() => {
+                          setSelectedBatch(batch);
+                          setSelectedProductTemplateId(batch.selected_product_id ?? 1);
+                          setShowRoadmapModal(true);
+                        }}
+                        onAnalysisClick={() => {
+                          setSelectedBatch(batch);
+                          setShowAnalysisModal(true);
+                        }}
+                      />
+                      <div className="mt-4 pl-4">
+                        <DailyProgressHistory batchId={batch.id} />
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Completed Batches */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-white rounded-2xl border border-teal-100 shadow-md overflow-hidden">
+            <div className="bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-700 p-5 text-white flex items-center justify-between shadow-sm">
               <div>
-                <h2 className="text-xl font-bold text-slate-800">Batch Selesai</h2>
-                <p className="text-sm text-slate-500 mt-1">Siap untuk diproses menjadi produk</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl" aria-hidden="true">🏁</span>
+                  <h2 className="text-xl font-extrabold tracking-wide text-white">Batch Selesai</h2>
+                </div>
+                <p className="text-xs text-teal-100 mt-1 font-medium">Siap untuk diproses menjadi produk</p>
               </div>
-              <span className="text-sm font-semibold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
+              <span className="text-xs font-bold text-teal-900 bg-teal-100/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-teal-200 shadow-inner">
                 {completedBatches.length} selesai
               </span>
             </div>
-            
-            {completedBatches.length === 0 ? (
-              <div className="text-center py-10 bg-slate-50 rounded-xl border border-slate-200">
-                <span className="text-3xl opacity-60" aria-hidden="true">🏁</span>
-                <p className="mt-3 text-slate-600 text-sm">
-                  Belum ada batch yang selesai.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {completedBatches.map((batch) => (
-                  <div key={batch.id} className="group hover:shadow-md transition-shadow">
-                    <BatchCard
-                      batch={batch}
-                      isCompleted={true}
-                      onRoadmapClick={() => {
-                        setSelectedBatch(batch);
-                        setSelectedProductTemplateId(batch.selected_product_id ?? 1);
-                        setShowRoadmapModal(true);
-                      }}
-                      onAnalysisClick={() => {
-                        setSelectedBatch(batch);
-                        setShowAnalysisModal(true);
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="p-6">
+              {completedBatches.length === 0 ? (
+                <div className="text-center py-10 bg-slate-50 rounded-xl border border-slate-200">
+                  <span className="text-3xl opacity-60" aria-hidden="true">🏁</span>
+                  <p className="mt-3 text-slate-600 text-sm">
+                    Belum ada batch yang selesai.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {completedBatches.map((batch) => (
+                    <div key={batch.id} className="group hover:shadow-md transition-shadow">
+                      <BatchCard
+                        batch={batch}
+                        isCompleted={true}
+                        onRoadmapClick={() => {
+                          setSelectedBatch(batch);
+                          setSelectedProductTemplateId(batch.selected_product_id ?? 1);
+                          setShowRoadmapModal(true);
+                        }}
+                        onAnalysisClick={() => {
+                          setSelectedBatch(batch);
+                          setShowAnalysisModal(true);
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

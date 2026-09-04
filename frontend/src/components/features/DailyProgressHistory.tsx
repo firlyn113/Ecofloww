@@ -169,7 +169,7 @@ export default function DailyProgressHistory({ batchId }: DailyProgressHistoryPr
                     {log.action_taken}
                   </Text>
                   {log.notes && (
-                    <Text fontSize="sm" color="gray.600" mt={2} p={3} bg="gray.50" borderRadius="md">
+                    <Text fontSize="sm" color="gray.600" bg="gray.50" mt={2} p={3} borderRadius="md">
                       {log.notes}
                     </Text>
                   )}

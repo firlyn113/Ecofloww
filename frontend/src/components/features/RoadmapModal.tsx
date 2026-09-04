@@ -251,7 +251,7 @@ export default function RoadmapModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered closeOnOverlayClick={false} closeOnEsc={!updating}>
       <ModalOverlay />
       <ModalContent aria-labelledby="roadmap-title" maxH="90vh" overflowY="auto" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
         <ModalHeader id="roadmap-title">

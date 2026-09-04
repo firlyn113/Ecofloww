@@ -129,7 +129,7 @@ export default function DailyLogModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="xl" isCentered>
+    <Modal isOpen={isOpen} onClose={handleClose} size="xl" isCentered closeOnOverlayClick={false} closeOnEsc={!loading}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>

@@ -129,16 +129,16 @@ export default function ProductRecommendationModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered closeOnOverlayClick={false} closeOnEsc={!loading}>
       <ModalOverlay />
-      <ModalContent bg="gray.800" borderColor="gray.700" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
-        <ModalHeader id="product-recommendations-title" color="gray.100">Rekomendasi Produk</ModalHeader>
-        <ModalCloseButton aria-label="Tutup dialog rekomendasi produk" color="gray.300" />
+      <ModalContent bg="white" borderColor="gray.200" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+        <ModalHeader id="product-recommendations-title" color="gray.800">Rekomendasi Produk</ModalHeader>
+        <ModalCloseButton aria-label="Tutup dialog rekomendasi produk" color="gray.600" />
         <form onSubmit={handleSubmit} aria-label="Form rekomendasi produk">
           <ModalBody>
             <Stack spacing={4}>
               <FormControl isRequired>
-                <FormLabel htmlFor="harvest-volume" color="gray.300">Volume Panen (Liter)</FormLabel>
+                <FormLabel htmlFor="harvest-volume" color="gray.700">Volume Panen (Liter)</FormLabel>
                 <Input
                   id="harvest-volume"
                   name="harvestVolume"
@@ -148,58 +148,58 @@ export default function ProductRecommendationModal({
                   placeholder="Misal, 5.5"
                   value={harvestVolume}
                   onChange={(e) => setHarvestVolume(e.target.value)}
-                  bg="gray.700"
-                  borderColor="gray.600"
-                  color="gray.100"
-                  _placeholder={{ color: 'gray.500' }}
+                  bg="white"
+                  borderColor="gray.300"
+                  color="gray.800"
+                  _placeholder={{ color: 'gray.400' }}
                 />
               </FormControl>
 
               <FormControl>
-                <FormLabel htmlFor="final-color" color="gray.300">Warna Akhir</FormLabel>
-                <Select id="final-color" name="finalColor" value={finalColor} onChange={(e) => setFinalColor(e.target.value)} bg="gray.700" borderColor="gray.600" color="gray.100">
-                  <option value="light_brown" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Cokelat Muda</option>
-                  <option value="dark_brown" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Cokelat Gelap</option>
-                  <option value="amber" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Amber</option>
+                <FormLabel htmlFor="final-color" color="gray.700">Warna Akhir</FormLabel>
+                <Select id="final-color" name="finalColor" value={finalColor} onChange={(e) => setFinalColor(e.target.value)} bg="white" borderColor="gray.300" color="gray.800">
+                  <option value="light_brown">Cokelat Muda</option>
+                  <option value="dark_brown">Cokelat Gelap</option>
+                  <option value="amber">Amber</option>
                 </Select>
               </FormControl>
 
               <FormControl>
-                <FormLabel htmlFor="aroma-profile" color="gray.300">Profil Aroma Hasil Fermentasi</FormLabel>
-                <Select id="aroma-profile" name="aromaProfile" value={aromaProfile} onChange={(e) => setAromaProfile(e.target.value)} bg="gray.700" borderColor="gray.600" color="gray.100">
-                  <option value="sweet" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Manis/Fruity</option>
-                  <option value="sour" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Asam</option>
-                  <option value="fruity" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Buah-buahan</option>
-                  <option value="tangy" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Asam Segar</option>
-                  <option value="neutral" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Netral</option>
+                <FormLabel htmlFor="aroma-profile" color="gray.700">Profil Aroma Hasil Fermentasi</FormLabel>
+                <Select id="aroma-profile" name="aromaProfile" value={aromaProfile} onChange={(e) => setAromaProfile(e.target.value)} bg="white" borderColor="gray.300" color="gray.800">
+                  <option value="sweet">Manis/Fruity</option>
+                  <option value="sour">Asam</option>
+                  <option value="fruity">Buah-buahan</option>
+                  <option value="tangy">Asam Segar</option>
+                  <option value="neutral">Netral</option>
                 </Select>
               </FormControl>
 
               <FormControl>
-                <FormLabel htmlFor="user-intent" color="gray.300">Tujuan Penggunaan</FormLabel>
-                <Select id="user-intent" name="userIntent" value={userIntent} onChange={(e) => setUserIntent(e.target.value)} bg="gray.700" borderColor="gray.600" color="gray.100">
-                  <option value="household" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Penggunaan Rumah Tangga</option>
-                  <option value="commercial" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Komersial</option>
+                <FormLabel htmlFor="user-intent" color="gray.700">Tujuan Penggunaan</FormLabel>
+                <Select id="user-intent" name="userIntent" value={userIntent} onChange={(e) => setUserIntent(e.target.value)} bg="white" borderColor="gray.300" color="gray.800">
+                  <option value="household">Penggunaan Rumah Tangga</option>
+                  <option value="commercial">Komersial</option>
                 </Select>
               </FormControl>
 
               {recommendations && (
-                <Box borderTop="1px" borderColor="gray.600" pt={4}>
-                  <Text fontWeight="bold" mb={3} color="gray.100">
+                <Box borderTop="1px" borderColor="gray.200" pt={4}>
+                  <Text fontWeight="bold" mb={3} color="gray.800">
                     Produk yang Direkomendasikan:
                   </Text>
                   <VStack spacing={3} align="start">
                     {recommendations.map((rec: Record<string, unknown>, idx: number) => (
-                      <Box key={idx} w="100%" p={3} borderRadius="md" bg="gray.700" borderWidth={selectedProductId === Number(rec.product_id) ? '2px' : '1px'} borderColor={selectedProductId === Number(rec.product_id) ? 'green.400' : 'gray.600'}>
+                      <Box key={idx} w="100%" p={3} borderRadius="md" bg="gray.50" borderWidth={selectedProductId === Number(rec.product_id) ? '2px' : '1px'} borderColor={selectedProductId === Number(rec.product_id) ? 'emerald.500' : 'gray.200'}>
                         <HStack justifyContent="space-between" mb={2}>
-                          <Text fontWeight="medium" color="gray.100">{String(rec.name)}</Text>
+                          <Text fontWeight="medium" color="gray.800">{String(rec.name)}</Text>
                           <Badge colorScheme="green">#{idx + 1}</Badge>
                         </HStack>
-                        <Text fontSize="sm" color="gray.400">
+                        <Text fontSize="sm" color="gray.600">
                           Skor kecocokan: {Number(rec.compatibility_score).toFixed(2)}
                         </Text>
                         {Boolean(rec.processing_instruction_summary) && (
-                          <Text fontSize="sm" mt={2} color="gray.300">
+                          <Text fontSize="sm" mt={2} color="gray.700">
                             {String(rec.processing_instruction_summary)}
                           </Text>
                         )}
@@ -221,7 +221,7 @@ export default function ProductRecommendationModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button type="button" variant="ghost" mr={3} onClick={handleClose} color="gray.300">
+            <Button type="button" variant="ghost" mr={3} onClick={handleClose} color="gray.600">
               {recommendations ? 'Tutup' : 'Batal'}
             </Button>
             {!recommendations && (

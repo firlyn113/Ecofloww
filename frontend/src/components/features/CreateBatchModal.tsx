@@ -165,7 +165,7 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="md" isCentered>
+    <Modal isOpen={isOpen} onClose={handleClose} size="md" isCentered closeOnOverlayClick={false} closeOnEsc={!loading}>
       <ModalOverlay />
       <ModalContent
         as="section"

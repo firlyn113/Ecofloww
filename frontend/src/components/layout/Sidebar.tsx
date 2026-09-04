@@ -55,7 +55,7 @@ function MenuTooltip({ label, show }: { label: string; show: boolean }) {
   return (
     <span
       role="tooltip"
-      className="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl shadow-black/40 transition-opacity duration-200 group-hover:opacity-100"
+      className="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100"
     >
       {label}
     </span>
@@ -110,7 +110,7 @@ export default function Sidebar({
         } ${expanded ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Header: logo + toggle */}
-        <div className={`flex h-16 shrink-0 items-center border-b border-emerald-50 ${expanded ? 'gap-3 px-4' : 'justify-center px-2'}`}>
+        <div className={`flex h-16 shrink-0 items-center justify-between border-b border-emerald-50 ${expanded ? 'px-4' : 'justify-center px-2'}`}>
           {expanded && (
             <div className="flex shrink-0 items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/30">

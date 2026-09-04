@@ -86,128 +86,138 @@ export default function BatchCard({
     return `Hari ke-${elapsedDays} dari ${totalDays}`;
   };
 
+  const actionBase =
+    'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] shadow-sm hover:-translate-y-0.5 hover:shadow-md';
+
+  const actionLog =
+    '!border-emerald-600 !bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!border-emerald-700 focus-visible:outline-emerald-500';
+
+  const actionDaily =
+    '!border-teal-600 !bg-teal-600 !text-white hover:!bg-teal-700 hover:!border-teal-700 focus-visible:outline-teal-500';
+
+  const actionRecommendation =
+    '!border-sky-600 !bg-sky-600 !text-white hover:!bg-sky-700 hover:!border-sky-700 focus-visible:outline-sky-500';
+
+  const actionRoadmap =
+    '!border-amber-500 !bg-amber-500 !text-slate-950 hover:!bg-amber-600 hover:!border-amber-600 focus-visible:outline-amber-500';
+
+  const actionPrimary =
+    '!border-emerald-600 !bg-gradient-to-r !from-emerald-600 !via-teal-600 !to-emerald-700 !text-white font-bold shadow-lg shadow-emerald-600/30 hover:-translate-y-0.5 hover:!from-emerald-700 hover:!via-teal-700 hover:!to-emerald-800 hover:shadow-xl hover:shadow-emerald-600/40 focus-visible:outline-emerald-400 text-base tracking-wide';
+
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="p-5 border-b border-slate-100">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+      <div className="border-b border-slate-100 bg-gradient-to-r from-white via-emerald-50/30 to-emerald-50/50 p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
-                <span className="text-lg">🌱</span>
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100">
+                <span className="text-lg" aria-hidden="true">🌱</span>
               </div>
-              <div>
-                <h3 className="font-bold text-slate-800 text-lg">{batch.name}</h3>
+              <div className="min-w-0">
+                <h3 className="truncate text-lg font-extrabold text-slate-800">{batch.name}</h3>
                 <p className="text-sm text-slate-500">
                   Dimulai {formatDistanceToNow(startDate, { addSuffix: true, locale: id })}
                 </p>
               </div>
             </div>
           </div>
-          <div className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${getStatusColor(batch.status)}`}>
+          <div className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold ${getStatusColor(batch.status)}`}>
             {getStatusLabel(batch.status)}
           </div>
         </div>
       </div>
 
-      {/* Progress Section */}
-      <div className="p-5 border-b border-slate-100">
-        <div className="mb-3">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-slate-700">Progres Fermentasi</span>
-            <span className="text-sm font-medium text-emerald-600">{getDaysText()}</span>
+      <div className="space-y-5 p-5">
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-semibold text-slate-700">Progres Fermentasi</span>
+            <span className="text-sm font-semibold text-emerald-600">{getDaysText()}</span>
           </div>
-          <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div 
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500"
+          <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500"
               style={{ width: `${progressPercent}%` }}
-            ></div>
+            />
           </div>
           {!isCompleted && daysRemaining > 0 && (
-            <p className="text-xs text-slate-500 mt-2">
+            <p className="mt-2 text-xs text-slate-500">
               Perkiraan panen: {formatDistanceToNow(harvestDate, { addSuffix: true, locale: id })}
             </p>
           )}
         </div>
 
-        {/* Batch Details */}
-        <div className="grid grid-cols-2 gap-3 mt-4">
-          <div className="p-3 bg-slate-50 rounded-lg">
-            <p className="text-xs text-slate-500">Bahan Baku</p>
-            <p className="font-semibold text-slate-800">{batch.waste_weight_kg} kg</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl bg-slate-50 p-3">
+            <p className="text-xs font-medium text-slate-500">Bahan Baku</p>
+            <p className="mt-1 font-bold text-slate-800">{batch.waste_weight_kg} kg</p>
           </div>
-          <div className="p-3 bg-slate-50 rounded-lg">
-            <p className="text-xs text-slate-500">Kebutuhan Air</p>
-            <p className="font-semibold text-slate-800">{batch.water_liters} L</p>
+          <div className="rounded-xl bg-slate-50 p-3">
+            <p className="text-xs font-medium text-slate-500">Kebutuhan Air</p>
+            <p className="mt-1 font-bold text-slate-800">{batch.water_liters} L</p>
           </div>
-          <div className="p-3 bg-slate-50 rounded-lg">
-            <p className="text-xs text-slate-500">Kebutuhan Gula</p>
-            <p className="font-semibold text-slate-800">{batch.sugar_kg} kg</p>
+          <div className="rounded-xl bg-slate-50 p-3">
+            <p className="text-xs font-medium text-slate-500">Kebutuhan Gula</p>
+            <p className="mt-1 font-bold text-slate-800">{batch.sugar_kg} kg</p>
           </div>
-          <div className="p-3 bg-slate-50 rounded-lg">
-            <p className="text-xs text-slate-500">Status</p>
-            <p className="font-semibold text-slate-800">{getStatusLabel(batch.status)}</p>
+          <div className="rounded-xl bg-slate-50 p-3">
+            <p className="text-xs font-medium text-slate-500">Status</p>
+            <p className="mt-1 font-bold text-slate-800">{getStatusLabel(batch.status)}</p>
           </div>
         </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="p-5">
         {isCompleted ? (
-          <div className="flex gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               onClick={onRoadmapClick}
-              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-lg hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className={`${actionBase} ${actionRoadmap}`}
             >
               Lihat Roadmap
             </button>
             <button
               onClick={onAnalysisClick}
-              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold rounded-lg hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className={`${actionBase} ${actionPrimary}`}
             >
-              Analisis Bisnis
+              📊 Analisis Bisnis
             </button>
           </div>
         ) : batch.status !== 'failed' ? (
           <div className="space-y-3">
-            <div className="flex gap-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <button
                 onClick={onLogClick}
-                className="flex-1 px-3 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
+                className={`${actionBase} ${actionLog}`}
               >
                 Catatan Fermentasi
               </button>
               <button
                 onClick={onDailyLogClick}
-                className="flex-1 px-3 py-2.5 bg-teal-500 text-white text-sm font-semibold rounded-lg hover:bg-teal-600 transition-colors"
+                className={`${actionBase} ${actionDaily}`}
               >
                 Progres Harian
               </button>
-            </div>
-            <div className="flex gap-2">
               <button
                 onClick={onRecommendationClick}
-                className="flex-1 px-3 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-lg hover:bg-blue-600 transition-colors"
+                className={`${actionBase} ${actionRecommendation}`}
               >
                 Rekomendasi Produk
               </button>
               <button
                 onClick={onRoadmapClick}
-                className="flex-1 px-3 py-2.5 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition-colors"
+                className={`${actionBase} ${actionRoadmap}`}
               >
-                Roadmap
+                Lihat Roadmap
               </button>
             </div>
             <button
               onClick={onAnalysisClick}
-              className="w-full px-3 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm font-semibold rounded-lg hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className={`${actionBase} w-full ${actionPrimary}`}
             >
-              Analisis Bisnis
+              📊 Analisis Bisnis
             </button>
           </div>
         ) : (
-          <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-            <p className="text-sm text-red-700 font-medium">Batch ini gagal. Mulai batch baru untuk mencoba lagi.</p>
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
+            <p className="text-sm font-medium text-red-700">Batch ini gagal. Mulai batch baru untuk mencoba lagi.</p>
           </div>
         )}
       </div>
