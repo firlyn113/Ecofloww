@@ -27,9 +27,6 @@ import {
   Image,
   Icon,
   IconButton,
-  Alert,
-  AlertIcon,
-  AlertDescription,
 } from '@chakra-ui/react';
 import { useState, useCallback, useRef } from 'react';
 import { FiUpload, FiX } from 'react-icons/fi';

@@ -253,7 +253,7 @@ export default function RoadmapModal({
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered closeOnOverlayClick={false} closeOnEsc={!updating}>
       <ModalOverlay />
-      <ModalContent aria-labelledby="roadmap-title" maxH="90vh" overflowY="auto" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+      <ModalContent aria-labelledby="roadmap-title" maxH="90vh" overflowY="auto" bg="var(--bg-card, white)" color="var(--text-primary, #1f2937)" borderColor="var(--border-color, #e5e7eb)" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
         <ModalHeader id="roadmap-title">
           <HStack justifyContent="space-between">
             <Text>Roadmap Pemrosesan</Text>

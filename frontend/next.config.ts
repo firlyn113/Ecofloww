@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  experimental: {
+    optimizePackageImports: ['@chakra-ui/react', 'react-icons'],
+  },
 };
 
 export default nextConfig;

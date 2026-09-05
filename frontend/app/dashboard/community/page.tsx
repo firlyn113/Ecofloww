@@ -1,7 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import { FiUsers, FiShare2, FiTrendingUp, FiHeart, FiMessageCircle, FiFilter, FiChevronRight } from 'react-icons/fi';
+import { useEffect, useState } from 'react';
+import apiClient, { getErrorMessage } from '@/lib/api';
+import { FiUsers, FiShare2, FiTrendingUp, FiHeart, FiMessageCircle, FiFilter, FiChevronRight, FiAward } from 'react-icons/fi';
+
+interface LeaderboardItem {
+  user_id: string;
+  name: string;
+  region?: string | null;
+  total_points: number;
+  rank: number;
+}
+
+interface LeaderboardResponse {
+  total_items: number;
+  total_pages: number;
+  current_page: number;
+  page_size: number;
+  data: LeaderboardItem[];
+}
 
 interface CommunityBatch {
   id: number;
@@ -60,6 +77,29 @@ export default function CommunityPage() {
   const [batches] = useState<CommunityBatch[]>(mockCommunityBatches);
   const [likedBatches, setLikedBatches] = useState<Set<number>>(new Set());
   const [filter, setFilter] = useState<string>('all');
+  const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [leaderboardError, setLeaderboardError] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    apiClient.get('/api/v1/leaderboard?page=1&page_size=10')
+      .then((response) => {
+        if (!mounted) return;
+        const payload = response.data.data as LeaderboardResponse;
+        setLeaderboard(payload.data || []);
+      })
+      .catch((error) => {
+        if (!mounted) return;
+        setLeaderboardError(getErrorMessage(error, 'Gagal memuat leaderboard'));
+      })
+      .finally(() => {
+        if (mounted) setLeaderboardLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleLike = (batchId: number) => {
     setLikedBatches((prev) => {
@@ -79,6 +119,8 @@ export default function CommunityPage() {
     if (filter === 'harvested') return batch.status === 'harvested';
     return true;
   });
+
+  const topContributor = leaderboard[0];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-50 p-4 md:p-6">
@@ -108,7 +150,7 @@ export default function CommunityPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -139,6 +181,19 @@ export default function CommunityPage() {
               </div>
               <div className="w-12 h-12 rounded-lg bg-teal-100 flex items-center justify-center">
                 <FiTrendingUp className="text-teal-600" size={20} />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Top Kontributor</p>
+                <p className="text-2xl font-bold text-slate-800 mt-2">
+                  {topContributor ? topContributor.name : (leaderboardLoading ? '...' : '—')}
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center">
+                <FiAward className="text-amber-600" size={20} />
               </div>
             </div>
           </div>
@@ -181,6 +236,41 @@ export default function CommunityPage() {
             >
               Panen
             </button>
+          </div>
+        </div>
+
+        {/* Leaderboard */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-200 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-800">Leaderboard Komunitas</h2>
+              <p className="text-sm text-slate-600 mt-1">Peringkat berdasarkan kontribusi batch dan aktivitas komunitas</p>
+            </div>
+            <div className="text-sm text-slate-500">
+              {leaderboardLoading ? 'Memuat...' : leaderboardError ? leaderboardError : `${leaderboard.length} pengguna`}
+            </div>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {leaderboard.map((item) => (
+              <div key={item.user_id} className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold">
+                    #{item.rank}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-800">{item.name}</p>
+                    <p className="text-xs text-slate-500">{item.region || 'Wilayah tidak ditentukan'}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-slate-800">{item.total_points} poin</p>
+                  <p className="text-xs text-slate-500">Peringkat {item.rank}</p>
+                </div>
+              </div>
+            ))}
+            {!leaderboardLoading && leaderboard.length === 0 && !leaderboardError && (
+              <div className="p-6 text-center text-slate-500">Belum ada data leaderboard.</div>
+            )}
           </div>
         </div>
 

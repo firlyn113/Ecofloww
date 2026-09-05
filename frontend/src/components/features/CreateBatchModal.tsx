@@ -93,6 +93,19 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
     };
   }, [wasteWeight, waterLiters, sugarKg]);
 
+  const handleWasteChange = (value: string) => {
+    setWasteWeight(value);
+    const waste = parseFloat(value);
+    if (!(waste > 0)) {
+      setWaterLiters('');
+      setSugarKg('');
+      setRatioCheck(null);
+      return;
+    }
+    setWaterLiters((waste * (10 / 3)).toFixed(2));
+    setSugarKg((waste / 3).toFixed(2));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -127,7 +140,7 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
 
       toast({
         title: 'Batch Berhasil Dibuat',
-        description: `Air: ${response.data.data.calculated_water_liters}L, Gula: ${response.data.data.calculated_sugar_kg}kg (Rasio 1:3:10)`,
+        description: `Air: ${response.data.data.calculated_water_liters ?? response.data.data.water_liters ?? '—'}L, Gula: ${response.data.data.calculated_sugar_kg ?? response.data.data.sugar_kg ?? '—'}kg (Rasio 1:3:10)`,
         status: 'success',
         isClosable: true,
         duration: 5000,
@@ -190,24 +203,25 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
 
               <FormControl isRequired>
                 <FormLabel htmlFor="waste-weight">Berat Limbah (kg)</FormLabel>
-                <NumberInput value={wasteWeight} onChange={setWasteWeight} min={0}>
+                <NumberInput value={wasteWeight} onChange={handleWasteChange} min={0}>
                   <NumberInputField id="waste-weight" name="wasteWeight" placeholder="Misal, 10" />
                 </NumberInput>
               </FormControl>
 
               <FormControl isRequired>
                 <FormLabel htmlFor="water-liters">Air (Liter)</FormLabel>
-                <NumberInput value={waterLiters} onChange={setWaterLiters} min={0}>
-                <NumberInputField id="water-liters" name="waterLiters" placeholder="Misal, 33.33 (10/3 × berat limbah)" />
+                <NumberInput value={waterLiters} onChange={setWaterLiters} min={0} isReadOnly>
+                  <NumberInputField id="water-liters" name="waterLiters" placeholder="Otomatis dihitung 10/3 dari limbah" />
                 </NumberInput>
               </FormControl>
 
               <FormControl isRequired>
                 <FormLabel htmlFor="sugar-kg">Gula (kg)</FormLabel>
-                <NumberInput value={sugarKg} onChange={setSugarKg} min={0}>
-                  <NumberInputField id="sugar-kg" name="sugarKg" placeholder="Misal, 3.33 (1/3 × berat limbah)" />
+                <NumberInput value={sugarKg} onChange={setSugarKg} min={0} isReadOnly>
+                  <NumberInputField id="sugar-kg" name="sugarKg" placeholder="Otomatis dihitung 1/3 dari limbah" />
                 </NumberInput>
               </FormControl>
+
 
               <FormControl isRequired>
                 <FormLabel htmlFor="start-date">Tanggal Mulai</FormLabel>

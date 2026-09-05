@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "./theme.css";
 
 :root {
   --background: #f8fafc;
@@ -46,10 +45,6 @@ body {
 ::selection {
   background-color: rgba(5, 150, 105, 0.2);
   color: var(--foreground);
-}
-
-*:not(button) {
-  @apply transition-colors duration-200;
 }
 
 .text-balance {

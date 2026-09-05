@@ -128,10 +128,15 @@ export default function ProductRecommendationModal({
     onClose();
   };
 
+  const formatRecommendationText = (value: unknown): string => {
+    if (typeof value !== 'string' || !value.trim()) return 'Tidak ada detail tambahan';
+    return value;
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered closeOnOverlayClick={false} closeOnEsc={!loading}>
       <ModalOverlay />
-      <ModalContent bg="white" borderColor="gray.200" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+      <ModalContent bg="var(--bg-card, white)" borderColor="var(--border-color, #e5e7eb)" color="var(--text-primary, #1f2937)" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
         <ModalHeader id="product-recommendations-title" color="gray.800">Rekomendasi Produk</ModalHeader>
         <ModalCloseButton aria-label="Tutup dialog rekomendasi produk" color="gray.600" />
         <form onSubmit={handleSubmit} aria-label="Form rekomendasi produk">
@@ -198,11 +203,10 @@ export default function ProductRecommendationModal({
                         <Text fontSize="sm" color="gray.600">
                           Skor kecocokan: {Number(rec.compatibility_score).toFixed(2)}
                         </Text>
-                        {Boolean(rec.processing_instruction_summary) && (
                           <Text fontSize="sm" mt={2} color="gray.700">
-                            {String(rec.processing_instruction_summary)}
+                            {formatRecommendationText(rec.processing_instruction_summary)}
                           </Text>
-                        )}
+
                         <Button
                           mt={3}
                           size="xs"

@@ -153,7 +153,7 @@ export default function BusinessAnalysisModal({
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered closeOnOverlayClick={false} closeOnEsc={!loading} >
       <ModalOverlay />
-      <ModalContent maxH="90vh" overflowY="auto" bg="white" borderColor="gray.200" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+      <ModalContent maxH="90vh" overflowY="auto" bg="var(--bg-card, white)" borderColor="var(--border-color, #e5e7eb)" color="var(--text-primary, #1f2937)" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
         <ModalHeader id="business-analysis-title" color="gray.800">Analisis Bisnis</ModalHeader>
         <ModalCloseButton aria-label="Tutup dialog analisis bisnis" color="gray.600" />
         <form onSubmit={handleSubmit} aria-label="Form analisis bisnis">
