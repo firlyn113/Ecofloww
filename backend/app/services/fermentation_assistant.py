@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Tuple
+from typing import Tuple, List
 
 class FermentationAssistantService:
     """AI klasifikasi status fermentasi eco-enzyme (deterministic rule-based).
@@ -10,13 +10,13 @@ class FermentationAssistantService:
     - Bulan 3 (hari 60-90): Gas minimal/hampir tidak ada → tanda matang
     """
 
-    AROMA_NORMAL = ["sweet", "sour"]
+    AROMA_NORMAL = ["sweet", "sour", "fruity"]
     AROMA_CAUTION = ["slightly_rotten", "unusual"]
-    AROMA_FAILED = ["strongly_rotten", "moldy"]
+    AROMA_FAILED = ["strongly_rotten", "moldy", "busuk", "rotten"]
     
-    COLOR_NORMAL = ["brown", "dark_brown", "amber"]
+    COLOR_NORMAL = ["brown", "dark_brown", "amber", "light_brown"]
     COLOR_CAUTION = ["unexpected_shift", "unusual"]
-    COLOR_FAILED = ["black", "green", "white_mold"]
+    COLOR_FAILED = ["black", "green", "white_mold", "hitam", "jamur_hitam"]
 
     # Fase fermentasi berdasarkan hari
     PHASE_EARLY = 30       # Hari 0-30: fase awal (gas aktif normal)
@@ -31,7 +31,8 @@ class FermentationAssistantService:
         gas_presence: bool,
         temperature_c: float,
         incubation_day: int,
-        initial_ratio_ok: bool = True
+        initial_ratio_ok: bool = True,
+        ph: float | None = None
     ) -> Tuple[str, float, str]:
         """Klasifikasikan status fermentasi berdasarkan observasi user.
 
@@ -56,6 +57,7 @@ class FermentationAssistantService:
         aroma_lower = aroma.lower()
         color_lower = color.lower()
         temp_optimal = 20 <= temperature_c <= 30
+        ph_optimal = True if ph is None else 3.0 <= ph <= 4.5
         
         failed_count = 0
         caution_count = 0
@@ -74,6 +76,9 @@ class FermentationAssistantService:
         
         # Cek suhu
         if not temp_optimal:
+            caution_count += 1
+
+        if not ph_optimal:
             caution_count += 1
         
         # Cek gas berdasarkan fase fermentasi
@@ -106,6 +111,8 @@ class FermentationAssistantService:
                     suggestions.append("Naikkan suhu ruangan (ideal: 20-30°C)")
                 else:
                     suggestions.append("Turunkan suhu ruangan (ideal: 20-30°C)")
+            if not ph_optimal:
+                suggestions.append("Jaga pH tetap asam ringan (ideal: 3.0-4.5)")
             if aroma_lower in FermentationAssistantService.AROMA_CAUTION:
                 suggestions.append("Pantau aroma secara ketat; bau sedikit menyimpang mungkin akan membaik")
             if color_lower in FermentationAssistantService.COLOR_CAUTION:

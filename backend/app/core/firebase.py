@@ -51,7 +51,7 @@ def verify_token(token: str) -> dict:
         # Mode development: accept dummy token for testing
         if os.getenv("ENVIRONMENT", "development") == "development":
             logger.warning("Firebase tidak diinisialisasi, menggunakan mode development")
-            return {"uid": "dev_user_001", "email": "dev@example.com", "name": "Development User"}
+            return {"uid": "dev_user_001", "email": "dev@example.com", "name": "Development User", "role": "user"}
         else:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

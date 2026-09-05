@@ -60,6 +60,7 @@ class FermentationLogBase(BaseModel):
     color: str = Field(..., min_length=1, max_length=50, description="Warna larutan")
     gas_presence: bool
     temperature_c: float = Field(..., ge=-10, le=60, description="Suhu dalam Celsius")
+    ph: Optional[float] = Field(None, ge=0, le=14, description="pH larutan")
     notes: Optional[str] = Field(None, max_length=2000)
     image_url: Optional[str] = Field(None, max_length=500)
 
@@ -153,6 +154,26 @@ class RoadmapSummary(BaseModel):
     started_at: Optional[str] = None
     completed_at: Optional[str] = None
 
+class AIFermentationDiagnoseRequest(BaseModel):
+    log_date: datetime
+    aroma: str = Field(..., min_length=1, max_length=50)
+    color: str = Field(..., min_length=1, max_length=50)
+    gas_presence: bool
+    temperature_c: float = Field(..., ge=-10, le=60)
+    ph: Optional[float] = Field(None, ge=0, le=14)
+    incubation_day: int = Field(..., ge=0, le=3650)
+    notes: Optional[str] = Field(None, max_length=2000)
+
+
+class AIFermentationDiagnoseResponse(BaseModel):
+    ai_status_prediction: str
+    ai_confidence_score: float
+    health_score: float
+    corrective_action_suggestion: str
+    harvest_alert_triggered: bool
+    incubation_day: int
+
+
 class APIResponse(BaseModel):
     status: str
     message: Optional[str] = None
@@ -172,6 +193,22 @@ class PaginationResponse(BaseModel):
     next_page: Optional[int] = None
     prev_page: Optional[int] = None
     data: list
+
+
+class LeaderboardItem(BaseModel):
+    user_id: str
+    name: str
+    region: Optional[str] = None
+    total_points: int
+    rank: int
+
+
+class LeaderboardResponse(BaseModel):
+    total_items: int
+    total_pages: int
+    current_page: int
+    page_size: int
+    data: list[LeaderboardItem]
 
 class BatchDailyLogBase(BaseModel):
     log_date: datetime

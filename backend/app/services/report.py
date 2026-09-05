@@ -48,6 +48,8 @@ class ReportService:
         rows = [
             ("COGS per Liter", analysis_data.get("cogs_per_liter")),
             ("Suggested Retail Price", analysis_data.get("suggested_retail_price")),
+            ("Price Range Min", analysis_data.get("price_range_min")),
+            ("Price Range Max", analysis_data.get("price_range_max")),
             ("Gross Margin (%)", analysis_data.get("gross_margin_percentage")),
             ("Break-even Units (Liters)", analysis_data.get("break_even_units_liters")),
             ("Yearly Net Profit", analysis_data.get("yearly_net_profit")),
@@ -81,6 +83,7 @@ class ReportService:
             pdf.drawString(50, y, f"{label}: {display_value}")
 
         sensitivity = analysis_data.get("sensitivity_analysis") or {}
+        strategy = analysis_data.get("strategic_recommendations") or []
         y -= 28
         pdf.setFont("Helvetica-Bold", 12)
         pdf.drawString(50, y, f"Sensitivity Analysis (Variance: {sensitivity.get('variance_percentage', 10)}%)")
@@ -94,6 +97,15 @@ class ReportService:
             y -= 18
             display_value = f"{value:.2f}" if isinstance(value, (float, int)) else str(value)
             pdf.drawString(50, y, f"{label}: {display_value}")
+
+        if strategy:
+            y -= 28
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.drawString(50, y, "Strategic Recommendations")
+            pdf.setFont("Helvetica", 10)
+            for item in strategy[:3]:
+                y -= 16
+                pdf.drawString(50, y, f"- {str(item)[:120]}")
 
         pdf.showPage()
         pdf.save()

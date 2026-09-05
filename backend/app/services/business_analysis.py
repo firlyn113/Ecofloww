@@ -223,7 +223,10 @@ class BusinessAnalysisService:
         labor_cost: float,
         overhead_cost: float,
         monthly_fixed_costs: float,
-        regional_average_price: float = None
+        regional_average_price: float = None,
+        target_market: str = "local",
+        packaging_type: str = "bottle",
+        distribution_channel: str = "direct"
     ) -> dict:
         """Jalankan pipeline analisis bisnis lengkap (COGS -> viability rating).
 
@@ -252,9 +255,25 @@ class BusinessAnalysisService:
             projection["yearly_net_profit"], margins["gross_margin_percentage"], projection["breakeven_months"]
         )
         
+        strategy = [
+            "Gunakan edukasi sebelum jualan untuk menjelaskan manfaat eco-enzyme.",
+            "Prioritaskan channel distribusi yang sesuai dengan target pasar dan kemasan.",
+            "Tampilkan transparansi komposisi dan proses untuk meningkatkan kepercayaan pelanggan."
+        ]
+        if target_market == "export":
+            strategy = [
+                "Siapkan label dan dokumentasi produk sesuai standar pasar tujuan.",
+                "Fokus pada kemasan yang aman untuk pengiriman jarak jauh.",
+                "Bangun kemitraan distributor atau reseller di pasar tujuan."
+            ]
+        elif distribution_channel == "online":
+            strategy[1] = "Optimalkan foto produk, testimoni, dan listing marketplace untuk meningkatkan konversi."
+
         return {
             "cogs_per_liter": cogs_per_liter,
             "suggested_retail_price": srp_per_liter,
+            "price_range_min": round(cogs_per_liter * 1.3, 2),
+            "price_range_max": round(cogs_per_liter * 1.6, 2),
             "gross_margin_per_liter": margins["gross_margin_per_liter"],
             "gross_margin_percentage": margins["gross_margin_percentage"],
             "total_revenue": margins["total_revenue"],
@@ -266,5 +285,6 @@ class BusinessAnalysisService:
             "yearly_net_profit": projection["yearly_net_profit"],
             "breakeven_months": projection["breakeven_months"],
             "sensitivity_analysis": sensitivity,
-            "viability_rating": viability
+            "viability_rating": viability,
+            "strategic_recommendations": strategy
         }

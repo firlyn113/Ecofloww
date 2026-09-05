@@ -4,11 +4,12 @@ from datetime import datetime, timezone
 from app.core.database import get_db
 from app.core.auth import get_current_user
 from app.models.base import User, FermentationBatch, FermentationLog, ProductRecommendation, ProductTemplate
-from app.schemas.base import APIResponse
+from app.schemas.base import APIResponse, AIFermentationDiagnoseRequest, AIFermentationDiagnoseResponse
 from app.services.product_recommendation import ProductRecommendationService
 from app.services.business_analysis import BusinessAnalysisService
 from app.services.report import ReportService
 from pydantic import BaseModel
+from app.services.fermentation_assistant import FermentationAssistantService
 
 router = APIRouter(prefix="/api/v1", tags=["recommendations"])
 
@@ -39,6 +40,35 @@ class BusinessAnalysisRequest(BaseModel):
     overhead_cost: float
     monthly_fixed_costs: float
     regional_average_price: float = None
+
+
+@router.post("/ai/diagnose", response_model=APIResponse)
+async def diagnose_fermentation(
+    req: AIFermentationDiagnoseRequest,
+    current_user: User = Depends(get_current_user),
+):
+    status_pred, confidence, suggestion = FermentationAssistantService.classify_fermentation(
+        aroma=req.aroma,
+        color=req.color,
+        gas_presence=req.gas_presence,
+        temperature_c=req.temperature_c,
+        incubation_day=req.incubation_day,
+        ph=req.ph,
+    )
+    health_score = FermentationAssistantService.calculate_health_score(status_pred, confidence, req.incubation_day)
+    harvest_alert = FermentationAssistantService.should_trigger_harvest_alert(status_pred, req.incubation_day, req.gas_presence, req.aroma)
+    return APIResponse(
+        status="success",
+        message="Fermentation diagnosis completed",
+        data=AIFermentationDiagnoseResponse(
+            ai_status_prediction=status_pred,
+            ai_confidence_score=confidence,
+            health_score=round(health_score, 2),
+            corrective_action_suggestion=suggestion,
+            harvest_alert_triggered=harvest_alert,
+            incubation_day=req.incubation_day,
+        ).model_dump(),
+    )
 
 @router.post("/batches/{batch_id}/recommendation", response_model=APIResponse)
 async def get_product_recommendation(
@@ -178,7 +208,10 @@ async def run_business_analysis(
             labor_cost=analysis_request.labor_cost,
             overhead_cost=analysis_request.overhead_cost,
             monthly_fixed_costs=analysis_request.monthly_fixed_costs,
-            regional_average_price=analysis_request.regional_average_price
+            regional_average_price=analysis_request.regional_average_price,
+            target_market=analysis_request.target_market,
+            packaging_type=analysis_request.packaging_type,
+            distribution_channel=analysis_request.distribution_channel
         )
         
         prod_rec = db.query(ProductRecommendation).filter(
