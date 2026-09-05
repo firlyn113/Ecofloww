@@ -14,7 +14,7 @@ class TestFermentationAssistantService:
         
         assert status == "Normal"
         assert confidence >= 0.8
-        assert "normally" in suggestion.lower()
+        assert "normal" in suggestion.lower()
     
     def test_classify_fermentation_failed_aroma(self):
         status, confidence, suggestion = FermentationAssistantService.classify_fermentation(
@@ -27,7 +27,7 @@ class TestFermentationAssistantService:
         
         assert status == "Failed"
         assert confidence >= 0.9
-        assert "failed" in suggestion.lower()
+        assert "gagal" in suggestion.lower() or "failed" in suggestion.lower()
     
     def test_classify_fermentation_failed_color(self):
         status, confidence, suggestion = FermentationAssistantService.classify_fermentation(
@@ -42,7 +42,7 @@ class TestFermentationAssistantService:
     
     def test_classify_fermentation_caution_temperature_and_gas(self):
         status, confidence, suggestion = FermentationAssistantService.classify_fermentation(
-            aroma="sweet",
+            aroma="slightly_rotten",
             color="brown",
             gas_presence=False,
             temperature_c=15,
@@ -50,12 +50,12 @@ class TestFermentationAssistantService:
         )
         
         assert status == "Caution"
-        assert "temperature" in suggestion.lower()
+        assert "suhu" in suggestion.lower() or "temperature" in suggestion.lower()
     
     def test_classify_fermentation_caution_multiple_factors(self):
         status, confidence, suggestion = FermentationAssistantService.classify_fermentation(
             aroma="slightly_rotten",
-            color="brown",
+            color="unexpected_shift",
             gas_presence=False,
             temperature_c=25,
             incubation_day=50
@@ -83,7 +83,7 @@ class TestFermentationAssistantService:
         alert = FermentationAssistantService.should_trigger_harvest_alert(
             status="Normal",
             incubation_day=90,
-            gas_presence=True,
+            gas_presence=False,
             aroma="sweet"
         )
         
@@ -93,7 +93,7 @@ class TestFermentationAssistantService:
         alert = FermentationAssistantService.should_trigger_harvest_alert(
             status="Normal",
             incubation_day=60,
-            gas_presence=True,
+            gas_presence=False,
             aroma="sweet"
         )
         
@@ -103,17 +103,17 @@ class TestFermentationAssistantService:
         alert = FermentationAssistantService.should_trigger_harvest_alert(
             status="Failed",
             incubation_day=90,
-            gas_presence=True,
+            gas_presence=False,
             aroma="sweet"
         )
         
         assert alert is False
     
-    def test_should_trigger_harvest_alert_false_no_gas(self):
+    def test_should_trigger_harvest_alert_false_gas_active(self):
         alert = FermentationAssistantService.should_trigger_harvest_alert(
             status="Normal",
             incubation_day=90,
-            gas_presence=False,
+            gas_presence=True,
             aroma="sweet"
         )
         

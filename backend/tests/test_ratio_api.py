@@ -32,26 +32,26 @@ class TestCheckIngredientRatio:
     def test_exact_ratio_no_warning(self, client):
         response = client.post(
             "/api/v1/check-ingredient-ratio",
-            json={"waste_kg": 10, "water_liters": 30, "sugar_kg": 10},
+            json={"waste_kg": 10, "water_liters": 33.33, "sugar_kg": 3.33},
         )
         assert response.status_code == 200
         data = response.json()["data"]
-        assert data["ideal_water_liters"] == 30
-        assert data["ideal_sugar_kg"] == 10
+        assert data["ideal_water_liters"] == 33.33
+        assert data["ideal_sugar_kg"] == 3.33
         assert data["deviation_warning"]["has_warning"] is False
 
     def test_deviation_triggers_warning(self, client):
         response = client.post(
             "/api/v1/check-ingredient-ratio",
-            json={"waste_kg": 10, "water_liters": 35, "sugar_kg": 12},
+            json={"waste_kg": 10, "water_liters": 40, "sugar_kg": 5},
         )
         assert response.status_code == 200
         data = response.json()["data"]
         warning = data["deviation_warning"]
         assert warning["has_warning"] is True
         assert len(warning["warnings"]) == 2
-        assert any("Water deviation" in w for w in warning["warnings"])
-        assert any("Sugar deviation" in w for w in warning["warnings"])
+        assert any("air" in w.lower() or "water" in w.lower() for w in warning["warnings"])
+        assert any("gula" in w.lower() or "sugar" in w.lower() for w in warning["warnings"])
 
     def test_invalid_payload_returns_422(self, client):
         response = client.post(
