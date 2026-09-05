@@ -1,16 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import apiClient from '@/lib/api';
-import { FiArrowLeft, FiCheckCircle, FiMail, FiShield, FiUser, FiPhone, FiSave, FiLock, FiCamera } from 'react-icons/fi';
+import apiClient, { getErrorMessage } from '@/lib/api';
+import { FiArrowLeft, FiCheckCircle, FiMail, FiShield, FiUser, FiPhone, FiSave, FiLock, FiCamera, FiUploadCloud } from 'react-icons/fi';
 
 interface UserProfile {
   id: string;
   email: string;
   name: string;
   phone: string;
+  avatar_url?: string;
   role: string;
 }
 
@@ -21,8 +22,11 @@ export default function SettingsPage() {
   
   const [nameInput, setNameInput] = useState('');
   const [phoneInput, setPhoneInput] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -33,10 +37,46 @@ export default function SettingsPage() {
         setProfile(data);
         setNameInput(data.name || user.displayName || '');
         setPhoneInput(data.phone || '');
+        setAvatarUrl(data.avatar_url || user.photoURL || '');
       })
       .catch((error) => console.error('Gagal memuat profil:', error))
       .finally(() => setLoadingProfile(false));
   }, [user, authLoading]);
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setMessage({ type: 'error', text: 'Format gambar harus JPEG, PNG, atau WebP.' });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Ukuran foto maksimal 5MB.' });
+      return;
+    }
+
+    setUploadingImage(true);
+    setMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await apiClient.post('/api/v1/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      const uploadedUrl = res.data.data.url;
+      setAvatarUrl(uploadedUrl);
+      setMessage({ type: 'success', text: 'Foto profil berhasil diunggah! Jangan lupa simpan perubahan.' });
+    } catch (err) {
+      setMessage({ type: 'error', text: getErrorMessage(err, 'Gagal mengunggah foto profil.') });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,19 +86,14 @@ export default function SettingsPage() {
       const response = await apiClient.patch('/api/v1/users/me', {
         name: nameInput,
         phone: phoneInput,
+        avatar_url: avatarUrl,
       });
       setProfile(response.data.data);
       setMessage({ type: 'success', text: 'Profil berhasil diperbarui!' });
     } catch (err: unknown) {
-      const errorMessage =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { detail?: string; message?: string } } }).response?.data?.detail ||
-            (err as { response?: { data?: { detail?: string; message?: string } } }).response?.data?.message ||
-            'Gagal memperbarui profil.'
-          : 'Gagal memperbarui profil.';
       setMessage({
         type: 'error',
-        text: errorMessage,
+        text: getErrorMessage(err, 'Gagal memperbarui profil.'),
       });
     } finally {
       setSaving(false);
@@ -88,7 +123,7 @@ export default function SettingsPage() {
 
         <h1 className="mt-4 text-xl font-extrabold text-slate-800 md:text-2xl">Pengaturan Akun</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Kelola informasi profil, kontak, dan preferensi akun Anda.
+          Kelola informasi profil, foto profil, kontak, dan preferensi akun Anda.
         </p>
       </div>
 
@@ -110,23 +145,46 @@ export default function SettingsPage() {
             )}
 
             <div className="flex flex-col items-center gap-5 sm:flex-row">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+              />
+
               <div className="relative group shrink-0">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-3xl font-extrabold text-white shadow-md shadow-emerald-500/25">
-                  {(nameInput || profile?.name || user?.displayName || 'U').charAt(0).toUpperCase()}
-                </div>
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="Foto Profil"
+                    className="h-20 w-20 rounded-2xl object-cover shadow-md shadow-emerald-500/25 border-2 border-emerald-500"
+                  />
+                ) : (
+                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-3xl font-extrabold text-white shadow-md shadow-emerald-500/25">
+                    {(nameInput || profile?.name || user?.displayName || 'U').charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <button
                   type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage}
                   title="Ubah Foto Profil"
-                  className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
+                  className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
                 >
-                  <FiCamera className="h-3.5 w-3.5" />
+                  {uploadingImage ? (
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <FiCamera className="h-4 w-4" />
+                  )}
                 </button>
               </div>
-              <div className="min-w-0 text-center sm:text-left">
+
+              <div className="min-w-0 text-center sm:text-left space-y-1">
                 <h2 className="truncate text-lg font-extrabold text-slate-800">
                   {profile?.name || user?.displayName || 'Pengguna'}
                 </h2>
-                <div className="mt-1 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
                     <FiShield className="h-3 w-3" aria-hidden="true" />
                     {roleLabel(profile?.role ?? 'user')}
@@ -135,6 +193,15 @@ export default function SettingsPage() {
                     <FiCheckCircle className="h-3 w-3 text-emerald-500" /> Akun Terverifikasi
                   </span>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700"
+                >
+                  <FiUploadCloud className="h-3.5 w-3.5" />
+                  {uploadingImage ? 'Mengunggah...' : 'Unggah foto profil baru'}
+                </button>
               </div>
             </div>
 

@@ -32,9 +32,33 @@ from app.api.community import router as community_router
 
 logger = logging.getLogger(__name__)
 
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    from app.core.database import SessionLocal
+    db = SessionLocal()
+    try:
+        if db.query(ProductTemplate).count() == 0:
+            templates = [
+                ProductTemplate(id=1, name="Pembersih Rumah Tangga", description="Pembersih serbaguna berbasis eco-enzyme untuk perabot rumah tangga", processing_instructions="Encerkan 1:10 dengan air. Semprotkan ke permukaan lalu lap bersih.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot", "kain lap"], time_estimate_hours=0.5, safety_warnings="Hindari kontak langsung dengan mata."),
+                ProductTemplate(id=2, name="Disinfektan", description="Disinfektan berbasis eco-enzyme untuk sanitasi", processing_instructions="Encerkan 1:5 dengan air. Aplikasikan pada permukaan, diamkan 10 menit.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot", "sarung tangan"], time_estimate_hours=0.5, safety_warnings="Gunakan sarung tangan saat menangani larutan pekat."),
+                ProductTemplate(id=3, name="Pupuk Cair Organik", description="Pupuk cair organik dari eco-enzyme", processing_instructions="Encerkan 1:100 dengan air. Siramkan ke tanah sekitar tanaman.", ingredients=["eco-enzyme", "air"], equipment=["gembor/alat penyiram"], time_estimate_hours=0.25, safety_warnings="Jangan aplikasikan langsung pada bagian tanaman yang dikonsumsi."),
+                ProductTemplate(id=4, name="Pengusir Hama Alami", description="Pengusir hama alami berbasis eco-enzyme", processing_instructions="Encerkan 1:10 dengan air. Semprotkan pada daun tanaman.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot"], time_estimate_hours=0.25, safety_warnings="Uji coba pada area kecil terlebih dahulu."),
+                ProductTemplate(id=5, name="Pembersih Saluran Air", description="Pembersih dan penetral bau saluran pembuangan", processing_instructions="Tuangkan tanpa diencerkan ke saluran air. Diamkan semalaman.", ingredients=["eco-enzyme"], equipment=["gelas ukur"], time_estimate_hours=0.1, safety_warnings="Jangan dicampur dengan pembersih kimia."),
+                ProductTemplate(id=6, name="Penetral Bau", description="Penetral bau alami untuk ruangan dan kain", processing_instructions="Encerkan 1:20 dengan air. Semprotkan halus ke udara atau kain.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot kabut"], time_estimate_hours=0.25, safety_warnings="Uji coba pada bagian kain yang tidak mencolok."),
+                ProductTemplate(id=7, name="Bahan Dasar Kosmetik", description="Bahan dasar eco-enzyme untuk produk kosmetik alami", processing_instructions="Saring dengan baik. Campurkan dengan bahan sesuai resep.", ingredients=["eco-enzyme", "minyak pembawa", "minyak esensial"], equipment=["saringan", "mangkuk pencampur", "wadah"], time_estimate_hours=2.0, safety_warnings="Lakukan uji tempel kulit sebelum penggunaan. Tidak untuk dikonsumsi."),
+                ProductTemplate(id=8, name="Suplemen Pakan Ternak", description="Suplemen aditif pakan ternak berbasis eco-enzyme", processing_instructions="Encerkan 1:200 dengan air. Campurkan ke pakan ternak.", ingredients=["eco-enzyme", "air"], equipment=["gelas ukur", "ember pencampur"], time_estimate_hours=0.25, safety_warnings="Konsultasikan takaran dengan dokter hewan. Mulai dari jumlah kecil."),
+            ]
+            db.add_all(templates)
+            db.commit()
+    finally:
+        db.close()
+    yield
+
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="EcoFlow API", version="0.1.0")
+app = FastAPI(title="EcoFlow API", version="0.1.0", lifespan=lifespan)
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
 CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001").split(",") if o.strip()]
@@ -167,27 +191,6 @@ async def upload_image(
     except Exception as e:
         logger.error(f"Upload error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="File upload failed")
-
-@app.on_event("startup")
-def seed_product_templates():
-    from app.core.database import SessionLocal
-    db = SessionLocal()
-    try:
-        if db.query(ProductTemplate).count() == 0:
-            templates = [
-                ProductTemplate(id=1, name="Pembersih Rumah Tangga", description="Pembersih serbaguna berbasis eco-enzyme untuk perabot rumah tangga", processing_instructions="Encerkan 1:10 dengan air. Semprotkan ke permukaan lalu lap bersih.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot", "kain lap"], time_estimate_hours=0.5, safety_warnings="Hindari kontak langsung dengan mata."),
-                ProductTemplate(id=2, name="Disinfektan", description="Disinfektan berbasis eco-enzyme untuk sanitasi", processing_instructions="Encerkan 1:5 dengan air. Aplikasikan pada permukaan, diamkan 10 menit.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot", "sarung tangan"], time_estimate_hours=0.5, safety_warnings="Gunakan sarung tangan saat menangani larutan pekat."),
-                ProductTemplate(id=3, name="Pupuk Cair Organik", description="Pupuk cair organik dari eco-enzyme", processing_instructions="Encerkan 1:100 dengan air. Siramkan ke tanah sekitar tanaman.", ingredients=["eco-enzyme", "air"], equipment=["gembor/alat penyiram"], time_estimate_hours=0.25, safety_warnings="Jangan aplikasikan langsung pada bagian tanaman yang dikonsumsi."),
-                ProductTemplate(id=4, name="Pengusir Hama Alami", description="Pengusir hama alami berbasis eco-enzyme", processing_instructions="Encerkan 1:10 dengan air. Semprotkan pada daun tanaman.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot"], time_estimate_hours=0.25, safety_warnings="Uji coba pada area kecil terlebih dahulu."),
-                ProductTemplate(id=5, name="Pembersih Saluran Air", description="Pembersih dan penetral bau saluran pembuangan", processing_instructions="Tuangkan tanpa diencerkan ke saluran air. Diamkan semalaman.", ingredients=["eco-enzyme"], equipment=["gelas ukur"], time_estimate_hours=0.1, safety_warnings="Jangan dicampur dengan pembersih kimia."),
-                ProductTemplate(id=6, name="Penetral Bau", description="Penetral bau alami untuk ruangan dan kain", processing_instructions="Encerkan 1:20 dengan air. Semprotkan halus ke udara atau kain.", ingredients=["eco-enzyme", "air"], equipment=["botol semprot kabut"], time_estimate_hours=0.25, safety_warnings="Uji coba pada bagian kain yang tidak mencolok."),
-                ProductTemplate(id=7, name="Bahan Dasar Kosmetik", description="Bahan dasar eco-enzyme untuk produk kosmetik alami", processing_instructions="Saring dengan baik. Campurkan dengan bahan sesuai resep.", ingredients=["eco-enzyme", "minyak pembawa", "minyak esensial"], equipment=["saringan", "mangkuk pencampur", "wadah"], time_estimate_hours=2.0, safety_warnings="Lakukan uji tempel kulit sebelum penggunaan. Tidak untuk dikonsumsi."),
-                ProductTemplate(id=8, name="Suplemen Pakan Ternak", description="Suplemen aditif pakan ternak berbasis eco-enzyme", processing_instructions="Encerkan 1:200 dengan air. Campurkan ke pakan ternak.", ingredients=["eco-enzyme", "air"], equipment=["gelas ukur", "ember pencampur"], time_estimate_hours=0.25, safety_warnings="Konsultasikan takaran dengan dokter hewan. Mulai dari jumlah kecil."),
-            ]
-            db.add_all(templates)
-            db.commit()
-    finally:
-        db.close()
 
 @app.post("/api/v1/batches", response_model=APIResponse)
 async def create_batch(

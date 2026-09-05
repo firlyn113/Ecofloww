@@ -2,7 +2,7 @@ import axios from 'axios';
 import { auth } from './firebase';
 
 const apiClient = axios.create({
-  baseURL: '',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '',
   timeout: 10000,
 });
 

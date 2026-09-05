@@ -14,6 +14,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  const [userAvatar, setUserAvatar] = useState<string>('');
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -22,7 +24,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
     apiClient
       .get('/api/v1/users/me')
-      .then((response) => setIsAdmin(response.data.data.role === 'admin'))
+      .then((response) => {
+        const userData = response.data.data;
+        setIsAdmin(userData.role === 'admin');
+        if (userData.avatar_url) setUserAvatar(userData.avatar_url);
+      })
       .catch(() => setIsAdmin(false));
   }, [user, authLoading, router]);
 
@@ -89,9 +95,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="text-sm font-bold text-slate-700">{userName}</p>
               <p className="hidden text-xs text-slate-400 sm:block">{userEmail}</p>
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/20">
-              <span className="text-sm font-bold text-white">{userName.charAt(0).toUpperCase()}</span>
-            </div>
+            {userAvatar ? (
+              <img src={userAvatar} alt="Foto Profil" className="h-10 w-10 rounded-full object-cover shadow-md shadow-emerald-500/20" />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/20">
+                <span className="text-sm font-bold text-white">{userName.charAt(0).toUpperCase()}</span>
+              </div>
+            )}
           </div>
         </header>
 

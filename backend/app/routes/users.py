@@ -12,8 +12,9 @@ router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
 
 class UserProfileUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    name: Optional[str] = Field(None, max_length=100)
     phone: Optional[str] = Field(None, max_length=30)
+    avatar_url: Optional[str] = Field(None, max_length=500)
 
 
 @router.get("/me", response_model=APIResponse)
@@ -27,6 +28,7 @@ async def get_me(
             "email": current_user.email or "",
             "name": current_user.name or "",
             "phone": current_user.phone or "",
+            "avatar_url": getattr(current_user, "avatar_url", None) or "",
             "role": current_user.role,
         },
     )
@@ -42,6 +44,8 @@ async def update_me(
         current_user.name = payload.name.strip()
     if payload.phone is not None:
         current_user.phone = payload.phone.strip() or None
+    if payload.avatar_url is not None:
+        current_user.avatar_url = payload.avatar_url.strip() or None
     db.commit()
     db.refresh(current_user)
     return APIResponse(
@@ -52,6 +56,7 @@ async def update_me(
             "email": current_user.email or "",
             "name": current_user.name or "",
             "phone": current_user.phone or "",
+            "avatar_url": getattr(current_user, "avatar_url", None) or "",
             "role": current_user.role,
         },
     )
